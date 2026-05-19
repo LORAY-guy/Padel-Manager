@@ -39,6 +39,13 @@ ScaffoldingReadMe.txt
 # dotenv environment variables file
 .env
 
+# Visual Studio
+.vs/
+*.user
+
+# Publish output
+[Pp]ublish/
+
 # Others
 ~$*
 *~

@@ -1,0 +1,45 @@
+<UserControl x:Class="Padel.Manager.Views.ScoresTabView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                BorderBrush="#D8DDE8"
+                BorderThickness="1"
+                CornerRadius="4">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top"
+                           Text="Historique des matchs"
+                           FontWeight="SemiBold"
+                           Margin="8,6" />
+                <DataGrid x:Name="MatchHistoryDataGrid"
+                          ItemsSource="{Binding MatchHistory}"
+                          Margin="10"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=dd/MM/yyyy}" Width="Auto" />
+                        <DataGridTextColumn Header="Match" Binding="{Binding MatchNumber}" Width="Auto" />
+                        <DataGridTextColumn Header="Équipe A" Binding="{Binding EquipeA}" Width="*" />
+                        <DataGridTextColumn Header="Score A" Binding="{Binding ScoreA}" Width="Auto" />
+                        <DataGridTextColumn Header="Points A" Binding="{Binding TeamAPoints}" Width="Auto" />
+                        <DataGridTextColumn Header="Équipe B" Binding="{Binding EquipeB}" Width="*" />
+                        <DataGridTextColumn Header="Score B" Binding="{Binding ScoreB}" Width="Auto" />
+                        <DataGridTextColumn Header="Points B" Binding="{Binding TeamBPoints}" Width="Auto" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
+        </Border>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,10,0,0" HorizontalAlignment="Left">
+            <Button Content="Supprimer le match sélectionné"
+                    Padding="8,5"
+                    Foreground="#C41E3A"
+                    Click="DeleteSelectedMatchButton_OnClick" />
+        </StackPanel>
+    </Grid>
+</UserControl>

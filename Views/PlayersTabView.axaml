@@ -1,0 +1,67 @@
+<UserControl x:Class="Padel.Manager.Views.PlayersTabView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Padel.Manager.Controls">
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Margin="0,0,0,10"
+                Padding="10"
+                BorderBrush="#D8DDE8"
+                BorderThickness="1"
+                CornerRadius="6">
+            <Grid VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" MinWidth="220" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0,0,20,0">
+                    <TextBlock Text="Nom du joueur" Margin="0,0,0,2" FontWeight="SemiBold" />
+                    <TextBox x:Name="NewPlayerNameBox" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Vertical" Margin="0,0,20,0">
+                    <TextBlock Text="Niveau" Margin="0,0,0,2" FontWeight="SemiBold" />
+                    <ComboBox x:Name="NewPlayerLevelBox" SelectedIndex="0">
+                        <ComboBoxItem Content="1" />
+                        <ComboBoxItem Content="2" />
+                        <ComboBoxItem Content="3" />
+                        <ComboBoxItem Content="4" />
+                        <ComboBoxItem Content="5" />
+                    </ComboBox>
+                </StackPanel>
+
+                <Button Grid.Column="2"
+                        Content="Ajouter un joueur"
+                        Margin="0,0,8,0"
+                        Padding="15,15"
+                        VerticalAlignment="Bottom"
+                        Click="AddPlayerButton_OnClick" />
+
+                <Button Grid.Column="4"
+                        Content="Enregistrer les niveaux"
+                        Margin="0,0,8,0"
+                        Padding="15,15"
+                        VerticalAlignment="Bottom"
+                        Click="SaveLevelsButton_OnClick" />
+
+                <Button Grid.Column="5"
+                        Content="Recharger"
+                        Padding="15,15"
+                        VerticalAlignment="Bottom"
+                        Click="ReloadPlayersButton_OnClick" />
+            </Grid>
+        </Border>
+
+        <controls:PlayerGridControl Grid.Row="1" />
+    </Grid>
+</UserControl>

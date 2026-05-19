@@ -1,0 +1,40 @@
+<UserControl x:Class="Padel.Manager.Controls.PlayerGridControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="300"
+             d:DesignWidth="600">
+    <Grid>
+        <DataGrid x:Name="PlayersGrid"
+                  ItemsSource="{Binding Players}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  IsReadOnly="{Binding IsGridReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                  HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="*" IsReadOnly="True" />
+                <DataGridComboBoxColumn Header="Niveau"
+                                        SelectedItemBinding="{Binding Level, UpdateSourceTrigger=PropertyChanged}"
+                                        Width="180">
+                    <DataGridComboBoxColumn.ItemsSource>
+                        <x:Array Type="{x:Type sys:Int32}">
+                            <sys:Int32>1</sys:Int32>
+                            <sys:Int32>2</sys:Int32>
+                            <sys:Int32>3</sys:Int32>
+                            <sys:Int32>4</sys:Int32>
+                            <sys:Int32>5</sys:Int32>
+                        </x:Array>
+                    </DataGridComboBoxColumn.ItemsSource>
+                </DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Matches joués" Binding="{Binding MatchesPlayed}" Width="120" IsReadOnly="True" />
+                <DataGridTextColumn Header="Matches gagnés" Binding="{Binding MatchesWon}" Width="130" IsReadOnly="True" />
+                <DataGridTextColumn Header="Points" Binding="{Binding TotalPoints}" Width="90" IsReadOnly="True" />
+                <DataGridTextColumn Header="Moyenne" Binding="{Binding AveragePoints, StringFormat=F2}" Width="90" IsReadOnly="True" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

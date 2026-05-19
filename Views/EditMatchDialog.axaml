@@ -1,0 +1,112 @@
+<Window x:Class="Padel.Manager.Views.EditMatchDialog"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Modifier les joueurs du match"
+        SizeToContent="Height"
+        Width="480"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        Background="#F5F7FB">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Margin="0,0,0,15"
+                   FontSize="14"
+                   FontWeight="SemiBold"
+                   TextWrapping="Wrap"
+                   Text="Sélectionnez les joueurs pour remplacer ceux qui ne peuvent pas jouer" />
+
+        <!-- Équipe A -->
+        <Border Grid.Row="1" Margin="0,0,0,15" Padding="12"
+                BorderBrush="#D8DDE8" BorderThickness="1" CornerRadius="4">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="Équipe A"
+                           FontWeight="SemiBold" Margin="0,0,0,8" />
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Row="0" Grid.Column="0">
+                        <TextBlock Text="Joueur 1" FontWeight="SemiBold" Margin="0,0,0,5" />
+                        <ComboBox x:Name="TeamAPlayer1ComboBox" HorizontalAlignment="Stretch" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="0" Grid.Column="2">
+                        <TextBlock Text="Joueur 2" FontWeight="SemiBold" Margin="0,0,0,5" />
+                        <ComboBox x:Name="TeamAPlayer2ComboBox" HorizontalAlignment="Stretch" />
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                               x:Name="TeamACurrentLabel"
+                               Margin="0,8,0,0"
+                               FontSize="11"
+                               Foreground="#666"
+                               TextWrapping="Wrap" />
+                </Grid>
+            </DockPanel>
+        </Border>
+
+        <!-- Équipe B -->
+        <Border Grid.Row="2" Margin="0,0,0,15" Padding="12"
+                BorderBrush="#D8DDE8" BorderThickness="1" CornerRadius="4">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="Équipe B"
+                           FontWeight="SemiBold" Margin="0,0,0,8" />
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Row="0" Grid.Column="0">
+                        <TextBlock Text="Joueur 1" FontWeight="SemiBold" Margin="0,0,0,5" />
+                        <ComboBox x:Name="TeamBPlayer1ComboBox" HorizontalAlignment="Stretch" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="0" Grid.Column="2">
+                        <TextBlock Text="Joueur 2" FontWeight="SemiBold" Margin="0,0,0,5" />
+                        <ComboBox x:Name="TeamBPlayer2ComboBox" HorizontalAlignment="Stretch" />
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                               x:Name="TeamBCurrentLabel"
+                               Margin="0,8,0,0"
+                               FontSize="11"
+                               Foreground="#666"
+                               TextWrapping="Wrap" />
+                </Grid>
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Row="3" Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="Annuler" Padding="20,10"
+                    Click="CancelButton_OnClick" />
+            <Button Grid.Column="2" Content="Appliquer" Padding="20,10"
+                    Background="#0F2A52" Foreground="White"
+                    Click="ApplyButton_OnClick" />
+        </Grid>
+    </Grid>
+</Window>

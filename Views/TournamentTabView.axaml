@@ -1,0 +1,190 @@
+<UserControl x:Class="Padel.Manager.Views.TournamentTabView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="14">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="12" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0"
+                Padding="10"
+                BorderBrush="#D8DDE8"
+                BorderThickness="1"
+                CornerRadius="6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <TextBlock Text="Date du tournoi" FontWeight="SemiBold" Margin="0,0,0,4" />
+                    <CalendarDatePicker x:Name="TournamentDatePicker"
+                                        SelectedDateChanged="TournamentDatePicker_OnSelectedDateChanged"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Center"/>
+
+                    <Button Content="Charger le tournoi"
+                            Padding="0,5"
+                            Margin="0,10,0,5"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Click="LoadTournamentButton_OnClick" />
+                    <Button Content="Enregistrer le tournoi"
+                            Padding="0,5"
+                            Margin="0,0,0,5"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Click="SaveTournamentButton_OnClick" />
+                    <Button Content="Appliquer la date à tous les matchs"
+                            Padding="0,5"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Click="ApplyDateToAllMatchesButton_OnClick" />
+                </StackPanel>
+
+                <ListBox Grid.Row="1" ItemsSource="{Binding TournamentPlayerPool}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel LastChildFill="False">
+                                <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" />
+                                <TextBlock VerticalAlignment="Center" Width="160" Text="{Binding Player.Name}" />
+                                <TextBlock VerticalAlignment="Center" Text="{Binding Player.Level, StringFormat=Niveau \{0\}}" />
+                            </DockPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <Grid Grid.Row="2" Margin="0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="Tout sélectionner" Padding="10,5" Click="SelectAllPlayersButton_OnClick" />
+                    <Button Grid.Column="2" Content="Tout désélectionner" Padding="10,5" Click="ClearPlayersButton_OnClick" />
+                </Grid>
+
+                <StackPanel Grid.Row="3" HorizontalAlignment="Stretch">
+                    <Button Content="Générer le tournoi"
+                            Padding="0,5"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Click="GenerateBracketButton_OnClick" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" MinHeight="200" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="2*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="1"
+                        Content="Modifier dates par catégorie"
+                        Padding="20,10"
+                        Click="EditDatesByCategoryButton_OnClick" />
+                <Button Grid.Column="4"
+                        Content="Exporter tournoi (Image)"
+                        Padding="20,10"
+                        Click="ExportBracketImageButton_OnClick" />
+                <Button Grid.Column="5"
+                        Content="Imprimer"
+                        Padding="20,10"
+                        Margin="8,0,0,0"
+                        Click="PrintBracketButton_OnClick" />
+            </Grid>
+
+            <DataGrid Grid.Row="1"
+                      x:Name="TournamentMatchesDataGrid"
+                      ItemsSource="{Binding TournamentMatches}"
+                      AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Tour" Binding="{Binding RoundNumber}" Width="Auto" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Match" Binding="{Binding MatchNumber}" Width="Auto" IsReadOnly="True" />
+                    <DataGridTemplateColumn Header="Date" Width="Auto">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding MatchDate, StringFormat=dd/MM/yyyy}" VerticalAlignment="Center" Margin="4,0" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <CalendarDatePicker SelectedDate="{Binding MatchDate, Mode=TwoWay}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Équipe A" Binding="{Binding TeamA}" Width="*" />
+                    <DataGridTextColumn Header="Points A" Binding="{Binding ScoreA}" Width="Auto" />
+                    <DataGridTextColumn Header="Équipe B" Binding="{Binding TeamB}" Width="*" />
+                    <DataGridTextColumn Header="Points B" Binding="{Binding ScoreB}" Width="Auto" />
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Grid Grid.Row="2" Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="0">
+                    <TextBlock VerticalAlignment="Center" Margin="0,0,8,0" Text="Style d'impression:" />
+                    <ComboBox x:Name="PrintStyleComboBox"
+                              MinWidth="120"
+                              SelectionChanged="PrintStyleComboBox_OnSelectionChanged" />
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="3"
+                    Margin="0,10,0,0"
+                    BorderBrush="#D8DDE8"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top"
+                               Text="Aperçu de la feuille à imprimer"
+                               FontWeight="SemiBold"
+                               Margin="8,6" />
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <Border x:Name="TournamentPrintablePanel"
+                                Margin="10"
+                                Padding="16"
+                                ClipToBounds="True"
+                                Background="White"
+                                BorderBrush="#CFD8E6"
+                                BorderThickness="1"
+                                CornerRadius="6">
+                            <StackPanel>
+                                <TextBlock x:Name="TournamentTitleTextBlock"
+                                           HorizontalAlignment="Center"
+                                           FontSize="28"
+                                           Margin="0,0,0,15"
+                                           FontWeight="Bold"
+                                           Foreground="#FF0000"
+                                           Text="TOURNOI" />
+
+                                <Canvas x:Name="BracketCanvas" MinWidth="900" MinHeight="420" ClipToBounds="True" />
+                            </StackPanel>
+                        </Border>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

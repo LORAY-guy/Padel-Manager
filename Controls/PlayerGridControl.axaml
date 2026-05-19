@@ -1,0 +1,22 @@
+<UserControl x:Class="Padel.Manager.Controls.PlayerGridControl"
+             x:Name="Root"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <DataGrid x:Name="PlayersGrid"
+                  ItemsSource="{Binding Players}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="{Binding IsGridReadOnly, ElementName=Root}"
+                  HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="*" IsReadOnly="True" />
+                <DataGridTextColumn Header="Niveau" Binding="{Binding Level}" Width="Auto" />
+                <DataGridTextColumn Header="Matches joués" Binding="{Binding MatchesPlayed}" Width="Auto" IsReadOnly="True" />
+                <DataGridTextColumn Header="Matches gagnés" Binding="{Binding MatchesWon}" Width="Auto" IsReadOnly="True" />
+                <DataGridTextColumn Header="Points" Binding="{Binding TotalPoints}" Width="Auto" IsReadOnly="True" />
+                <DataGridTextColumn Header="Moyenne" Binding="{Binding AveragePoints, StringFormat=F2}" Width="Auto" IsReadOnly="True" />
+                <DataGridTextColumn Header="Forme récente" Binding="{Binding RecentFormDisplay}" Width="Auto" IsReadOnly="True" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

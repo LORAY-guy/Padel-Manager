@@ -1,0 +1,131 @@
+<Window x:Class="Padel.Manager.Views.DatasetManagerDialog"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Gérer les datasets"
+        Width="700" Height="500"
+        MinWidth="560" MinHeight="380"
+        WindowStartupLocation="CenterOwner"
+        Background="#F5F7FB">
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="170" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Dataset list -->
+        <Border Grid.Row="0" Grid.Column="0"
+                BorderBrush="#D8DDE8" BorderThickness="1" CornerRadius="4">
+            <ListBox x:Name="DatasetListBox"
+                     SelectionChanged="DatasetListBox_OnSelectionChanged"
+                     DoubleTapped="DatasetListBox_OnDoubleTapped"
+                     Padding="2">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="6,5">
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" />
+                            <TextBlock Text="{Binding Path}" FontSize="11" Foreground="#555"
+                                       TextTrimming="CharacterEllipsis" Margin="0,2,0,0" />
+                            <TextBlock Text="{Binding LastOpenedText}" FontSize="11"
+                                       Foreground="#888" Margin="0,1,0,0" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+
+        <!-- Action buttons -->
+        <StackPanel Grid.Row="0" Grid.Column="2" Spacing="6" VerticalAlignment="Top">
+            <Button x:Name="OpenButton"
+                    Content="Ouvrir"
+                    FontWeight="SemiBold"
+                    HorizontalAlignment="Stretch"
+                    Padding="10,9"
+                    Click="OpenButton_OnClick" />
+
+            <Border Height="1" Background="#D8DDE8" Margin="0,2" />
+
+            <Button x:Name="NewButton"
+                    Content="Nouveau..."
+                    HorizontalAlignment="Stretch"
+                    Padding="10,8"
+                    Click="NewButton_OnClick" />
+
+            <Button x:Name="ImportXlsxButton"
+                    Content="Importer XLSX..."
+                    HorizontalAlignment="Stretch"
+                    Padding="10,8"
+                    Click="ImportXlsxButton_OnClick" />
+
+            <Button x:Name="OpenFileButton"
+                    Content="Ouvrir fichier..."
+                    HorizontalAlignment="Stretch"
+                    Padding="10,8"
+                    Click="OpenFileButton_OnClick" />
+
+            <Border Height="1" Background="#D8DDE8" Margin="0,2" />
+
+            <Button x:Name="RenameButton"
+                    Content="Renommer..."
+                    HorizontalAlignment="Stretch"
+                    Padding="10,8"
+                    Click="RenameButton_OnClick" />
+
+            <Button x:Name="RemoveButton"
+                    Content="Retirer de la liste"
+                    HorizontalAlignment="Stretch"
+                    Padding="10,8"
+                    Click="RemoveButton_OnClick" />
+
+            <Button x:Name="DeleteButton"
+                    Content="Supprimer le fichier"
+                    HorizontalAlignment="Stretch"
+                    Padding="10,8"
+                    Foreground="#C41E3A"
+                    Click="DeleteButton_OnClick" />
+        </StackPanel>
+
+        <!-- New dataset creation panel (collapsible) -->
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                x:Name="NewDatasetPanel"
+                IsVisible="False"
+                Margin="0,10,0,0"
+                Padding="12"
+                BorderBrush="#B9C9E8" BorderThickness="1" CornerRadius="4"
+                Background="#EAF1FF">
+            <StackPanel>
+                <TextBlock Text="Créer un nouveau dataset"
+                           FontWeight="SemiBold" Margin="0,0,0,8" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0"
+                             x:Name="NewDatasetNameTextBox"
+                             Watermark="Nom du dataset (ex: Club A, Saison 2026...)"
+                             KeyDown="NewDatasetNameTextBox_OnKeyDown" />
+                    <Button Grid.Column="2" Content="Créer" Padding="14,6"
+                            Click="CreateDatasetButton_OnClick" />
+                    <Button Grid.Column="4" Content="Annuler" Padding="14,6"
+                            Click="CancelNewDatasetButton_OnClick" />
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Footer -->
+        <DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+                   Margin="0,10,0,0" LastChildFill="False">
+            <Button DockPanel.Dock="Right" Content="Annuler"
+                    Padding="18,8" Click="CancelButton_OnClick" />
+        </DockPanel>
+    </Grid>
+</Window>

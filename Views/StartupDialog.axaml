@@ -1,0 +1,160 @@
+<Window x:Class="Padel.Manager.Views.StartupDialog"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Padel Manager"
+        Width="640"
+        SizeToContent="Height"
+        MinWidth="520"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        Background="#F4F6FB">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="58" />
+            <RowDefinition Height="340" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#0F2A52">
+            <StackPanel VerticalAlignment="Center" Margin="24,0">
+                <TextBlock Text="Padel Manager"
+                           Foreground="White"
+                           FontSize="18"
+                           FontWeight="Bold" />
+                <TextBlock Text="Choisissez un dataset pour commencer"
+                           Foreground="#9BBFE0"
+                           FontSize="11"
+                           Margin="0,2,0,0" />
+            </StackPanel>
+        </Border>
+
+        <!-- Main content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="1" />
+                <ColumnDefinition Width="200" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Recent list -->
+            <Grid Grid.Column="0" Margin="20,16,14,14">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Récemment ouverts"
+                           FontWeight="SemiBold"
+                           FontSize="12"
+                           Foreground="#666"
+                           Margin="0,0,0,8" />
+
+                <Border Grid.Row="1"
+                        BorderBrush="#D8DDE8"
+                        BorderThickness="1"
+                        CornerRadius="4">
+                    <Grid>
+                        <ListBox x:Name="RecentListBox"
+                                 SelectionChanged="RecentListBox_OnSelectionChanged"
+                                 DoubleTapped="RecentListBox_OnDoubleTapped"
+                                 Padding="2"
+                                 Background="Transparent">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="6,5">
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="13" />
+                                        <TextBlock Text="{Binding ShortPath}"
+                                                   FontSize="11"
+                                                   Foreground="#666"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Margin="0,2,0,0" />
+                                        <TextBlock Text="{Binding LastOpenedText}"
+                                                   FontSize="10"
+                                                   Foreground="#999"
+                                                   Margin="0,1,0,0" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <TextBlock x:Name="EmptyStateText"
+                                   Text="Aucun dataset récent"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Foreground="#BBB"
+                                   FontStyle="Italic"
+                                   IsVisible="False" />
+                    </Grid>
+                </Border>
+
+                <Button x:Name="OpenRecentButton"
+                        Grid.Row="2"
+                        Content="Ouvrir"
+                        FontWeight="SemiBold"
+                        HorizontalAlignment="Left"
+                        Padding="24,8"
+                        Margin="0,10,0,0"
+                        IsEnabled="False"
+                        Click="OpenRecentButton_OnClick" />
+            </Grid>
+
+            <!-- Separator -->
+            <Border Grid.Column="1" Background="#D8DDE8" />
+
+            <!-- Actions -->
+            <StackPanel Grid.Column="2" Margin="20,16,20,14" Spacing="8">
+                <TextBlock Text="Commencer"
+                           FontWeight="SemiBold"
+                           FontSize="12"
+                           Foreground="#666"
+                           Margin="0,0,0,4" />
+                <Button x:Name="NewDatasetButton"
+                        Content="+ Nouveau dataset..."
+                        HorizontalAlignment="Stretch"
+                        Padding="12,9"
+                        FontSize="13"
+                        Click="NewDatasetButton_OnClick" />
+                <Button x:Name="OpenFileButton"
+                        Content="Ouvrir un fichier..."
+                        HorizontalAlignment="Stretch"
+                        Padding="12,8"
+                        FontSize="13"
+                        Click="OpenFileButton_OnClick" />
+            </StackPanel>
+        </Grid>
+
+        <!-- New dataset creation panel (collapsible) -->
+        <Border Grid.Row="2"
+                x:Name="NewDatasetPanel"
+                IsVisible="False"
+                Padding="20,14"
+                Background="#EAF1FF"
+                BorderBrush="#B9C9E8"
+                BorderThickness="0,1,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="8" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="8" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0"
+                         x:Name="NewDatasetNameTextBox"
+                         Watermark="Nom du dataset (ex: Club A, Saison 2026...)"
+                         KeyDown="NewDatasetNameTextBox_OnKeyDown" />
+                <Button Grid.Column="2"
+                        Content="Créer"
+                        Padding="16,7"
+                        Click="CreateButton_OnClick" />
+                <Button Grid.Column="4"
+                        Content="Annuler"
+                        Padding="12,7"
+                        Click="CancelNewButton_OnClick" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

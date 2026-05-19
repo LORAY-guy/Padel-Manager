@@ -1,0 +1,45 @@
+<UserControl x:Class="Padel.Manager.Views.ScoresTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="450"
+             d:DesignWidth="900">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <GroupBox Grid.Row="0" Header="Historique des matchs">
+            <DataGrid x:Name="MatchHistoryDataGrid"
+                      ItemsSource="{Binding MatchHistory}"
+                      Margin="10"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      ScrollViewer.CanContentScroll="True"
+                      EnableRowVirtualization="True"
+                      EnableColumnVirtualization="True"
+                      VirtualizingPanel.IsVirtualizing="True"
+                      VirtualizingPanel.VirtualizationMode="Recycling"
+                      IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=dd/MM/yyyy}" Width="Auto" />
+                    <DataGridTextColumn Header="Match" Binding="{Binding MatchNumber}" Width="Auto" />
+                    <DataGridTextColumn Header="Équipe A" Binding="{Binding EquipeA}" Width="*" />
+                    <DataGridTextColumn Header="Score A" Binding="{Binding ScoreA}" Width="Auto" />
+                    <DataGridTextColumn Header="Points A" Binding="{Binding TeamAPoints}" Width="Auto" />
+                    <DataGridTextColumn Header="Équipe B" Binding="{Binding EquipeB}" Width="*" />
+                    <DataGridTextColumn Header="Score B" Binding="{Binding ScoreB}" Width="Auto" />
+                    <DataGridTextColumn Header="Points B" Binding="{Binding TeamBPoints}" Width="Auto" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,10,0,0" HorizontalAlignment="Left">
+            <Button Content="Supprimer le match sélectionné"
+                    Padding="8,5"
+                    Click="DeleteSelectedMatchButton_OnClick"
+                    Foreground="#C41E3A" />
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,248 @@
+<UserControl x:Class="Padel.Manager.Views.MatchesTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="500"
+             d:DesignWidth="1100">
+    <Grid Margin="14">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="12" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0"
+                Padding="10"
+                BorderBrush="#D8DDE8"
+                BorderThickness="1"
+                CornerRadius="6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <TextBlock Text="Date des matchs" FontWeight="SemiBold" Margin="0,0,0,4" />
+                    <DatePicker x:Name="MatchDatePicker" Height="Auto" SelectedDateChanged="MatchDatePicker_OnSelectedDateChanged" />
+
+                    <Button Content="Charger le planning du jour"
+                            Padding="0,5"
+                            Margin="0,10,0,5"
+                            Click="LoadPlanningButton_OnClick" />
+                    <Button Content="Supprimer le match sélectionné"
+                            Padding="0,5"
+                            Margin="0,0,0,5"
+                            Click="DeleteSelectedMatchButton_OnClick" />
+                    <Button Content="Enregistrer le planning du jour"
+                            Padding="0,5"
+                            Click="SavePlanningButton_OnClick" />
+                    <TextBlock Text="Rotations" FontWeight="SemiBold" Margin="0,10,0,4" />
+                    <ComboBox x:Name="RoundCountComboBox" Height="Auto" SelectedIndex="2">
+                        <ComboBoxItem Content="1" />
+                        <ComboBoxItem Content="2" />
+                        <ComboBoxItem Content="3" />
+                        <ComboBoxItem Content="4" />
+                        <ComboBoxItem Content="5" />
+                    </ComboBox>
+                </StackPanel>
+
+                <ListBox Grid.Row="1" ItemsSource="{Binding PlayerPool}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel LastChildFill="False" Margin="2">
+                                <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock VerticalAlignment="Center" Width="160" Text="{Binding Player.Name}" />
+                                <TextBlock VerticalAlignment="Center" Width="Auto" Text="{Binding Player.Level, StringFormat=Niveau {0}}" />
+                            </DockPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <Grid Grid.Row="2" Margin="0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="Tout sélectionner" Padding="10,5" Click="SelectAllPlayersButton_OnClick" />
+                    <Button Grid.Column="2" Content="Tout désélectionner" Padding="10,5" Click="ClearPlayersButton_OnClick" />
+                </Grid>
+
+                <StackPanel Grid.Row="3" Margin="0,5,0,0">
+                    <Button Content="Générer des matchs équilibrés"
+                            Padding="0,5"
+                            Click="GenerateMatchesButton_OnClick" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" MinHeight="200"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="2*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="1" 
+                        Content="Enregistrer les modifications"
+                        Padding="20,10"
+                        Click="SaveResultsButton_OnClick" />
+                <Button Grid.Column="5" 
+                        Content="Exporter feuille (Image)"
+                        Padding="20,10"
+                        Margin="8,0,0,0"
+                        Click="ExportSheetImageButton_OnClick" />
+                <Button Grid.Column="6" 
+                        Content="Imprimer"
+                        Padding="20,10"
+                        Margin="8,0,0,0"
+                        Click="PrintSheetButton_OnClick" />
+            </Grid>
+
+            <DataGrid Grid.Row="1"
+                      x:Name="GeneratedMatchesDataGrid"
+                      ItemsSource="{Binding GeneratedMatches}"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      HeadersVisibility="Column"
+                      MouseDoubleClick="GeneratedMatchesDataGrid_OnMouseDoubleClick">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Rotation" Binding="{Binding RoundNumber}" Width="70" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Terrain" Binding="{Binding TerrainNumberText, UpdateSourceTrigger=PropertyChanged}" Width="70" />
+                    <DataGridTextColumn Header="Match" Binding="{Binding MatchNumber}" Width="70" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Équipe A" Binding="{Binding TeamA}" Width="*" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Score A" Binding="{Binding ScoreA, UpdateSourceTrigger=PropertyChanged}" Width="Auto" />
+                    <DataGridTextColumn Header="Équipe B" Binding="{Binding TeamB}" Width="*" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Score B" Binding="{Binding ScoreB, UpdateSourceTrigger=PropertyChanged}" Width="Auto" />
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Grid Grid.Row="2" Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="0">
+                    <TextBlock VerticalAlignment="Center" Margin="0,0,8,0" Text="Style d'impression:" />
+                    <ComboBox x:Name="PrintStyleComboBox" 
+                              Width="Auto"
+                              MinWidth="120"
+                              SelectionChanged="PrintStyleComboBox_OnSelectionChanged" />
+                </StackPanel>
+            </Grid>
+
+            <GroupBox Grid.Row="3" Header="Aperçu de la feuille à imprimer" Margin="0,10,0,0">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <Border x:Name="PrintableSheetPanel"
+                            Margin="10"
+                            Padding="16"
+                            Background="White"
+                            BorderBrush="#CFD8E6"
+                            BorderThickness="1"
+                            CornerRadius="6">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock x:Name="PrintableSheetTitleTextBlock"
+                                       HorizontalAlignment="Center"
+                                       FontSize="28"
+                                       Margin="0,0,0,15"
+                                       FontWeight="Bold"
+                                       Foreground="#FF0000"
+                                       Text="MATCH DU" />
+
+                            <ItemsControl ItemsSource="{Binding PrintableRotationGroups}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,12">
+                                            <Border Tag="RotationHeader" Background="#0F2A52" Padding="8" CornerRadius="4,4,0,0">
+                                                <TextBlock Foreground="White"
+                                                           FontWeight="Bold"
+                                                           HorizontalAlignment="Center"
+                                                           FontSize="14"
+                                                           Text="{Binding RoundNumber, StringFormat=ROTATION {0}}" />
+                                            </Border>
+
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="250" />
+                                                    <ColumnDefinition Width="250" />
+                                                    <ColumnDefinition Width="80" />
+                                                    <ColumnDefinition Width="80" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <Border Tag="ColumnHeader" Grid.Column="0" Height="34" BorderBrush="#BAC8DC" BorderThickness="1" Background="#EAF0F9" Padding="6">
+                                                    <TextBlock Text="Terrain" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                </Border>
+                                                <Border Tag="ColumnHeader" Grid.Column="1" Height="34" BorderBrush="#BAC8DC" BorderThickness="1" Background="#EAF0F9" Padding="6">
+                                                    <TextBlock Text="Équipe A" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                </Border>
+                                                <Border Tag="ColumnHeader" Grid.Column="2" Height="34" BorderBrush="#BAC8DC" BorderThickness="1" Background="#EAF0F9" Padding="6">
+                                                    <TextBlock Text="Équipe B" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                </Border>
+                                                <Border Tag="ColumnHeader" Grid.Column="3" Height="34" BorderBrush="#BAC8DC" BorderThickness="1" Background="#EAF0F9" Padding="6">
+                                                    <TextBlock Text="A" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                </Border>
+                                                <Border Tag="ColumnHeader" Grid.Column="4" Height="34" BorderBrush="#BAC8DC" BorderThickness="1" Background="#EAF0F9" Padding="6">
+                                                    <TextBlock Text="B" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                </Border>
+                                            </Grid>
+
+                                            <ItemsControl ItemsSource="{Binding Matches}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="90" />
+                                                                <ColumnDefinition Width="250" />
+                                                                <ColumnDefinition Width="250" />
+                                                                <ColumnDefinition Width="80" />
+                                                                <ColumnDefinition Width="80" />
+                                                            </Grid.ColumnDefinitions>
+
+                                                            <Border Tag="DataCell" Grid.Column="0" Height="34" BorderBrush="#BAC8DC" BorderThickness="1" Padding="6">
+                                                                <TextBlock Text="{Binding TerrainNumberText}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <Border Tag="DataCell" Grid.Column="1" Height="34" BorderBrush="#BAC8DC" BorderThickness="1" Padding="6">
+                                                                <TextBlock Text="{Binding TeamA}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <Border Tag="DataCell" Grid.Column="2" Height="34" BorderBrush="#BAC8DC" BorderThickness="1" Padding="6">
+                                                                <TextBlock Text="{Binding TeamB}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <Border Tag="DataCell" Grid.Column="3" Height="34" BorderBrush="#BAC8DC" BorderThickness="1" Padding="6">
+                                                                <TextBlock Text="{Binding ScoreA}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <Border Tag="DataCell" Grid.Column="4" Height="34" BorderBrush="#BAC8DC" BorderThickness="1" Padding="6">
+                                                                <TextBlock Text="{Binding ScoreB}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                            </Border>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </ScrollViewer>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</UserControl>

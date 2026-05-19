@@ -1,0 +1,194 @@
+<UserControl x:Class="Padel.Manager.Views.LeaderboardTabView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="450"
+             d:DesignWidth="900">
+    <Grid Margin="10" Background="#F5F7FC">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0"
+                       Text="Classement global"
+                       FontWeight="Bold"
+                       FontSize="22"
+                       Foreground="#0F2A52"
+                       Margin="10,10,10,0"
+                       VerticalAlignment="Center" />
+
+                <TextBlock Grid.Column="1"
+                       Text="Joueurs / feuille"
+                       VerticalAlignment="Center"
+                       Margin="0,10,8,0"
+                       Foreground="#0F2A52"
+                       FontWeight="SemiBold" />
+
+                <TextBox Grid.Column="2"
+                     x:Name="PlayersPerSheetTextBox"
+                     Width="64"
+                     Height="30"
+                     VerticalAlignment="Center"
+                     VerticalContentAlignment="Center"
+                     HorizontalContentAlignment="Center"
+                     Margin="0,10,12,0"
+                     Text="20"
+                     LostFocus="PlayersPerSheetTextBox_OnLostFocus"
+                     KeyDown="PlayersPerSheetTextBox_OnKeyDown" />
+
+                <Button Grid.Column="3"
+                    Content="Exporter classement (Images)"
+                    Padding="16,8"
+                    Margin="0,10,0,0"
+                    Click="ExportLeaderboardImageButton_OnClick" />
+
+                <Button Grid.Column="4"
+                    Content="Imprimer"
+                    Padding="16,8"
+                    Margin="8,10,10,0"
+                    Click="PrintLeaderboardButton_OnClick" />
+        </Grid>
+
+        <Border Grid.Row="1"
+                x:Name="LeaderboardPrintablePanel"
+                Padding="16"
+                Background="#FBFCFF"
+                BorderBrush="#CDD7EA"
+                BorderThickness="1"
+                CornerRadius="6"
+                ClipToBounds="True">
+            <Grid x:Name="LeaderboardPrintableContentGrid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition x:Name="LeaderboardTableRowDefinition" Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Margin="0,0,0,12"
+                        Padding="12"
+                        CornerRadius="6"
+                        BorderBrush="#B9C9E8"
+                        BorderThickness="1"
+                        Background="#EAF1FF">
+                    <StackPanel>
+                        <TextBlock x:Name="LeaderboardTitleTextBlock"
+                                   Text="CLASSEMENT GLOBAL"
+                                   FontSize="28"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   Foreground="#0F2A52" />
+                        <TextBlock x:Name="LeaderboardSubtitleTextBlock"
+                                   Text=""
+                                   FontSize="13"
+                                   HorizontalAlignment="Center"
+                                   Foreground="#3A4C73" />
+                    </StackPanel>
+                </Border>
+
+                <Grid Grid.Row="1" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Padding="10" CornerRadius="6" BorderBrush="#D6D9DF" BorderThickness="1" Background="#F5F7FA">
+                        <StackPanel>
+                            <TextBlock Text="2ème" FontWeight="Bold" Foreground="#515B70" HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding SecondPlace.Name, ElementName=Root}" FontWeight="SemiBold" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding SecondPlace.TotalPoints, ElementName=Root, StringFormat={}{0} pts}" HorizontalAlignment="Center" Foreground="#2D3A55" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Padding="10" CornerRadius="6" BorderBrush="#E3C66A" BorderThickness="1" Background="#FFF4CF">
+                        <StackPanel>
+                            <TextBlock Text="1er" FontWeight="Bold" Foreground="#7E5B00" HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding FirstPlace.Name, ElementName=Root}" FontWeight="Bold" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding FirstPlace.TotalPoints, ElementName=Root, StringFormat={}{0} pts}" HorizontalAlignment="Center" Foreground="#5B4300" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="4" Padding="10" CornerRadius="6" BorderBrush="#D9B89B" BorderThickness="1" Background="#FBEFE7">
+                        <StackPanel>
+                            <TextBlock Text="3ème" FontWeight="Bold" Foreground="#6B4A2E" HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding ThirdPlace.Name, ElementName=Root}" FontWeight="SemiBold" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding ThirdPlace.TotalPoints, ElementName=Root, StringFormat={}{0} pts}" HorizontalAlignment="Center" Foreground="#6B4A2E" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <DataGrid Grid.Row="2"
+                          x:Name="LeaderboardDataGrid"
+                          ItemsSource="{Binding RankedSummaries, ElementName=Root}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          IsReadOnly="True"
+                          HeadersVisibility="Column"
+                          RowHeaderWidth="0"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="#E5EAF3"
+                          BorderThickness="1"
+                          BorderBrush="#CFD8E6"
+                          ScrollViewer.CanContentScroll="True"
+                          EnableRowVirtualization="True"
+                          EnableColumnVirtualization="True"
+                          VirtualizingPanel.IsVirtualizing="True"
+                          VirtualizingPanel.VirtualizationMode="Recycling">
+                    <DataGrid.Resources>
+                        <Style x:Key="CenteredCellTextStyle" TargetType="TextBlock">
+                            <Setter Property="TextAlignment" Value="Center" />
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                        </Style>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Height" Value="24"/>
+                            <Setter Property="Background" Value="#0F2A52" />
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="FontWeight" Value="Bold" />
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="BorderBrush" Value="#0F2A52" />
+                        </Style>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Background" Value="White" />
+                            <Setter Property="FontSize" Value="13" />
+                            <Style.Triggers>
+                                <Trigger Property="AlternationIndex" Value="1">
+                                    <Setter Property="Background" Value="#F7FAFF" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="55" ElementStyle="{StaticResource CenteredCellTextStyle}" />
+                        <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="*" MinWidth="180" ElementStyle="{StaticResource CenteredCellTextStyle}" />
+                        <DataGridTextColumn Header="Joués" Binding="{Binding MatchesPlayed}" Width="95" ElementStyle="{StaticResource CenteredCellTextStyle}" />
+                        <DataGridTextColumn Header="Gagnés" Binding="{Binding MatchesWon}" Width="95" ElementStyle="{StaticResource CenteredCellTextStyle}" />
+                        <DataGridTextColumn Header="Points" Binding="{Binding TotalPoints}" Width="90" ElementStyle="{StaticResource CenteredCellTextStyle}" />
+                        <DataGridTextColumn Header="Moyenne" Binding="{Binding AveragePoints, StringFormat=F2}" Width="100" ElementStyle="{StaticResource CenteredCellTextStyle}" />
+                    </DataGrid.Columns>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        </Style>
+                    </DataGrid.CellStyle>
+                </DataGrid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
