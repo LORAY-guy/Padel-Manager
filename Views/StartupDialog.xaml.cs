@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -50,7 +51,11 @@ public partial class StartupDialog : Window
     }
 
     private void UpdateOpenButton()
-        => OpenRecentButton.IsEnabled = RecentListBox.SelectedItem is RecentItem;
+    {
+        var hasSelection = RecentListBox.SelectedItem is RecentItem;
+        OpenRecentButton.IsEnabled = hasSelection;
+        ShowLocationButton.IsEnabled = hasSelection;
+    }
 
     private void RecentListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         => UpdateOpenButton();
@@ -62,6 +67,26 @@ public partial class StartupDialog : Window
     }
 
     private void OpenRecentButton_OnClick(object? sender, RoutedEventArgs e) => OpenSelected();
+
+    private void ShowLocationButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (RecentListBox.SelectedItem is RecentItem item)
+            OpenFileLocation(item.Entry.Path);
+    }
+
+    private static void OpenFileLocation(string filePath)
+    {
+        try
+        {
+            if (OperatingSystem.IsWindows())
+                Process.Start("explorer.exe", $"/select,\"{filePath}\"");
+            else if (OperatingSystem.IsMacOS())
+                Process.Start(new ProcessStartInfo("open") { ArgumentList = { "-R", filePath } });
+            else
+                Process.Start(new ProcessStartInfo(Path.GetDirectoryName(filePath) ?? filePath) { UseShellExecute = true });
+        }
+        catch { }
+    }
 
     private void OpenSelected()
     {

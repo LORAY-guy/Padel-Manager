@@ -48,6 +48,12 @@
                     Padding="10,9"
                     Click="OpenButton_OnClick" />
 
+            <Button x:Name="ShowLocationButton"
+                    Content="Ouvrir le dossier"
+                    HorizontalAlignment="Stretch"
+                    Padding="10,8"
+                    Click="ShowLocationButton_OnClick" />
+
             <Border Height="1" Background="#D8DDE8" Margin="0,2" />
 
             <Button x:Name="NewButton"

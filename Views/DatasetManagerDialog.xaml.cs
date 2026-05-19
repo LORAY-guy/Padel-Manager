@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -56,6 +57,7 @@ public partial class DatasetManagerDialog : Window
     {
         var hasSelection = DatasetListBox.SelectedItem is DatasetViewModel;
         OpenButton.IsEnabled = hasSelection;
+        ShowLocationButton.IsEnabled = hasSelection;
         RenameButton.IsEnabled = hasSelection;
         RemoveButton.IsEnabled = hasSelection;
         DeleteButton.IsEnabled = hasSelection;
@@ -72,6 +74,26 @@ public partial class DatasetManagerDialog : Window
     }
 
     private void OpenButton_OnClick(object? sender, RoutedEventArgs e) => Open();
+
+    private void ShowLocationButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DatasetListBox.SelectedItem is DatasetViewModel vm)
+            OpenFileLocation(vm.Entry.Path);
+    }
+
+    private static void OpenFileLocation(string filePath)
+    {
+        try
+        {
+            if (OperatingSystem.IsWindows())
+                Process.Start("explorer.exe", $"/select,\"{filePath}\"");
+            else if (OperatingSystem.IsMacOS())
+                Process.Start(new ProcessStartInfo("open") { ArgumentList = { "-R", filePath } });
+            else
+                Process.Start(new ProcessStartInfo(Path.GetDirectoryName(filePath) ?? filePath) { UseShellExecute = true });
+        }
+        catch { }
+    }
 
     private void Open()
     {
