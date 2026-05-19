@@ -53,8 +53,16 @@ jobs:
           fi
           vpk pack --packId PadelManager --packVersion ${{ steps.version.outputs.VERSION }} --packDir publish/ --mainExe "${{ matrix.main-exe }}" --runtime ${{ matrix.rid }} $ICON_FLAG
 
+          # Only the Windows job owns the update manifest.
+          # Linux and Mac remove it before uploading to avoid race conditions
+          # where a non-Windows releases.json overwrites the Windows one.
+          if [[ "${{ matrix.os }}" != "windows-latest" ]]; then
+            rm -f Releases/releases.json Releases/RELEASES
+          fi
+
       - name: Upload to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
           files: Releases/*
+          fail_on_unmatched_files: false
           generate_release_notes: true
