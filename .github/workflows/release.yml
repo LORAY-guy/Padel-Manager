@@ -7,9 +7,22 @@ on:
 
 jobs:
   release:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: write
+
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            main-exe: Padel.Manager.exe
+          - os: ubuntu-latest
+            rid: linux-x64
+            main-exe: Padel.Manager
+          - os: macos-latest
+            rid: osx-arm64
+            main-exe: Padel.Manager
 
     steps:
       - name: Checkout
@@ -29,10 +42,16 @@ jobs:
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
 
       - name: Publish
-        run: dotnet publish -c Release -r win-x64 --self-contained -o publish/
+        run: dotnet publish -c Release -r ${{ matrix.rid }} --self-contained -o publish/
 
       - name: Package
-        run: vpk pack --packId PadelManager --packVersion ${{ steps.version.outputs.VERSION }} --packDir publish/ --mainExe Padel.Manager.exe --icon icon.ico
+        shell: bash
+        run: |
+          ICON_FLAG=""
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            ICON_FLAG="--icon icon.ico"
+          fi
+          vpk pack --packId PadelManager --packVersion ${{ steps.version.outputs.VERSION }} --packDir publish/ --mainExe "${{ matrix.main-exe }}" --runtime ${{ matrix.rid }} $ICON_FLAG
 
       - name: Upload to GitHub Releases
         uses: softprops/action-gh-release@v2
