@@ -80,6 +80,16 @@ public partial class App : Application
                     mgr.ApplyUpdatesAndRestart(newVersion);
             });
         }
-        catch { }
+        catch (Exception ex)
+        {
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                await MessageBoxManager.GetMessageBoxStandard(
+                    "Erreur de mise à jour (debug)",
+                    ex.ToString(),
+                    ButtonEnum.Ok
+                ).ShowAsync();
+            });
+        }
     }
 }
