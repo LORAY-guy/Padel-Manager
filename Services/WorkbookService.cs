@@ -464,6 +464,24 @@ public sealed class WorkbookService
         }
     }
 
+    public bool LoadAmericanoMode()
+    {
+        lock (_sync)
+        {
+            return LoadData().AmericanoMode;
+        }
+    }
+
+    public void SaveAmericanoMode(bool value)
+    {
+        lock (_sync)
+        {
+            var data = LoadData();
+            data.AmericanoMode = value;
+            SaveData(data);
+        }
+    }
+
     public void ExportToXlsx(string outputPath)
     {
         lock (_sync)
@@ -712,7 +730,9 @@ public sealed class WorkbookService
                 TeamBPlayer1 = namesById.TryGetValue(s.TeamBPlayer1Id, out var b1) ? b1 : string.Empty,
                 TeamBPlayer2 = namesById.TryGetValue(s.TeamBPlayer2Id, out var b2) ? b2 : string.Empty,
                 s.TeamAPoints,
-                s.TeamBPoints
+                s.TeamBPoints,
+                s.ScoreA,
+                s.ScoreB
             }).Where(s => !string.IsNullOrWhiteSpace(s.TeamAPlayer1)
                        && !string.IsNullOrWhiteSpace(s.TeamAPlayer2)
                        && !string.IsNullOrWhiteSpace(s.TeamBPlayer1)
@@ -726,10 +746,10 @@ public sealed class WorkbookService
 
         foreach (var score in mappedScores)
         {
-            AddPlayerMatchStats(stats, score.TeamAPlayer1, score.TeamAPoints);
-            AddPlayerMatchStats(stats, score.TeamAPlayer2, score.TeamAPoints);
-            AddPlayerMatchStats(stats, score.TeamBPlayer1, score.TeamBPoints);
-            AddPlayerMatchStats(stats, score.TeamBPlayer2, score.TeamBPoints);
+            AddPlayerMatchStats(stats, score.TeamAPlayer1, score.TeamAPoints, score.ScoreA);
+            AddPlayerMatchStats(stats, score.TeamAPlayer2, score.TeamAPoints, score.ScoreA);
+            AddPlayerMatchStats(stats, score.TeamBPlayer1, score.TeamBPoints, score.ScoreB);
+            AddPlayerMatchStats(stats, score.TeamBPlayer2, score.TeamBPoints, score.ScoreB);
         }
 
         return players
@@ -750,6 +770,7 @@ public sealed class WorkbookService
                     MatchesPlayed = stat.Played,
                     MatchesWon = stat.Won,
                     TotalPoints = stat.Points,
+                    TotalScoredGames = stat.ScoredGames,
                     AveragePoints = overallAvg,
                     RecentMatchCount = last3.Count,
                     RecentAverage = recentAvg,
@@ -873,7 +894,7 @@ public sealed class WorkbookService
         return (2, 2);
     }
 
-    private static void AddPlayerMatchStats(IDictionary<string, PlayerMatchStats> stats, string playerName, int points)
+    private static void AddPlayerMatchStats(IDictionary<string, PlayerMatchStats> stats, string playerName, int points, int scoredGames)
     {
         if (!stats.TryGetValue(playerName, out var stat))
         {
@@ -884,6 +905,7 @@ public sealed class WorkbookService
         stat.Played++;
         if (points == 3) stat.Won++;
         stat.Points += points;
+        stat.ScoredGames += scoredGames;
         stat.MatchPoints.Add(points);
     }
 
@@ -1044,6 +1066,7 @@ public sealed class WorkbookService
         public int Played;
         public int Won;
         public int Points;
+        public int ScoredGames;
         public readonly List<int> MatchPoints = [];
     }
 
@@ -1054,6 +1077,8 @@ public sealed class WorkbookService
         public int NextPlayerId { get; set; } = 1;
 
         public int LeaderboardPlayersPerSheet { get; set; } = 20;
+
+        public bool AmericanoMode { get; set; } = false;
 
         public List<PlayerEntry> Players { get; set; } = new();
 

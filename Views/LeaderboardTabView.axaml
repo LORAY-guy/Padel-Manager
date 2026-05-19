@@ -17,13 +17,25 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0"
-                       Text="Classement global"
-                       FontWeight="Bold"
-                       FontSize="22"
-                       Foreground="#0F2A52"
-                       Margin="10,10,10,0"
-                       VerticalAlignment="Center" />
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,10,10,0">
+                <TextBlock Text="Classement global"
+                           FontWeight="Bold"
+                           FontSize="22"
+                           Foreground="#0F2A52"
+                           VerticalAlignment="Center" />
+                <Border x:Name="AmericanoBadge"
+                        IsVisible="False"
+                        Margin="10,0,0,0"
+                        Padding="8,3"
+                        CornerRadius="4"
+                        Background="#1A7F4B"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="AMERICANO"
+                               Foreground="White"
+                               FontSize="11"
+                               FontWeight="Bold" />
+                </Border>
+            </StackPanel>
 
             <TextBlock Grid.Column="1"
                        Text="Joueurs / feuille"
@@ -106,7 +118,7 @@
                         <StackPanel>
                             <TextBlock Text="2ème" FontWeight="Bold" Foreground="#515B70" HorizontalAlignment="Center" />
                             <TextBlock Text="{Binding SecondPlace.Name, ElementName=Root}" FontWeight="SemiBold" HorizontalAlignment="Center" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding SecondPlace.TotalPoints, ElementName=Root, StringFormat=\{0\} pts}" HorizontalAlignment="Center" Foreground="#2D3A55" />
+                            <TextBlock Text="{Binding SecondPlaceScore, ElementName=Root, StringFormat=\{0\} pts}" HorizontalAlignment="Center" Foreground="#2D3A55" />
                         </StackPanel>
                     </Border>
 
@@ -114,7 +126,7 @@
                         <StackPanel>
                             <TextBlock Text="1er" FontWeight="Bold" Foreground="#7E5B00" HorizontalAlignment="Center" />
                             <TextBlock Text="{Binding FirstPlace.Name, ElementName=Root}" FontWeight="Bold" HorizontalAlignment="Center" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding FirstPlace.TotalPoints, ElementName=Root, StringFormat=\{0\} pts}" HorizontalAlignment="Center" Foreground="#5B4300" />
+                            <TextBlock Text="{Binding FirstPlaceScore, ElementName=Root, StringFormat=\{0\} pts}" HorizontalAlignment="Center" Foreground="#5B4300" />
                         </StackPanel>
                     </Border>
 
@@ -122,7 +134,7 @@
                         <StackPanel>
                             <TextBlock Text="3ème" FontWeight="Bold" Foreground="#6B4A2E" HorizontalAlignment="Center" />
                             <TextBlock Text="{Binding ThirdPlace.Name, ElementName=Root}" FontWeight="SemiBold" HorizontalAlignment="Center" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding ThirdPlace.TotalPoints, ElementName=Root, StringFormat=\{0\} pts}" HorizontalAlignment="Center" Foreground="#6B4A2E" />
+                            <TextBlock Text="{Binding ThirdPlaceScore, ElementName=Root, StringFormat=\{0\} pts}" HorizontalAlignment="Center" Foreground="#6B4A2E" />
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -143,6 +155,7 @@
                         <DataGridTextColumn Header="Joués" Binding="{Binding MatchesPlayed}" Width="95" />
                         <DataGridTextColumn Header="Gagnés" Binding="{Binding MatchesWon}" Width="95" />
                         <DataGridTextColumn Header="Points" Binding="{Binding TotalPoints}" Width="90" />
+                        <DataGridTextColumn Header="Pts marqués" Binding="{Binding TotalScoredGames}" Width="100" />
                         <DataGridTextColumn Header="Moyenne" Binding="{Binding AveragePoints, StringFormat=F2}" Width="100" />
                         <DataGridTextColumn Header="Forme récente" Binding="{Binding RecentFormDisplay}" Width="160" />
                     </DataGrid.Columns>

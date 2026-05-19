@@ -12,6 +12,8 @@ public sealed class PlayerScoreSummary
 
     public required int TotalPoints { get; init; }
 
+    public required int TotalScoredGames { get; init; }
+
     public required double AveragePoints { get; init; }
 
     public required int RecentMatchCount { get; init; }

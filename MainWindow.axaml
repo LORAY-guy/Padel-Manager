@@ -81,6 +81,10 @@
             <TabItem x:Name="LeaderboardTabItem" Header="Classement">
                 <tabs:LeaderboardTabView x:Name="LeaderboardTab" />
             </TabItem>
+
+            <TabItem Header="Paramètres">
+                <tabs:SettingsTabView x:Name="SettingsTab" />
+            </TabItem>
         </TabControl>
 
         <Border Grid.Row="2"

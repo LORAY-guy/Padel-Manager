@@ -38,20 +38,26 @@ public partial class LeaderboardTabView : UserControl, INotifyPropertyChanged
     public PlayerScoreSummary? FirstPlace
     {
         get => _firstPlace;
-        private set { _firstPlace = value; OnPropertyChanged(); }
+        private set { _firstPlace = value; OnPropertyChanged(); OnPropertyChanged(nameof(FirstPlaceScore)); }
     }
 
     public PlayerScoreSummary? SecondPlace
     {
         get => _secondPlace;
-        private set { _secondPlace = value; OnPropertyChanged(); }
+        private set { _secondPlace = value; OnPropertyChanged(); OnPropertyChanged(nameof(SecondPlaceScore)); }
     }
 
     public PlayerScoreSummary? ThirdPlace
     {
         get => _thirdPlace;
-        private set { _thirdPlace = value; OnPropertyChanged(); }
+        private set { _thirdPlace = value; OnPropertyChanged(); OnPropertyChanged(nameof(ThirdPlaceScore)); }
     }
+
+    public int? FirstPlaceScore => AmericanoMode ? FirstPlace?.TotalScoredGames : FirstPlace?.TotalPoints;
+    public int? SecondPlaceScore => AmericanoMode ? SecondPlace?.TotalScoredGames : SecondPlace?.TotalPoints;
+    public int? ThirdPlaceScore => AmericanoMode ? ThirdPlace?.TotalScoredGames : ThirdPlace?.TotalPoints;
+
+    private bool AmericanoMode => GetMainWindow()?.AmericanoMode ?? false;
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
@@ -101,19 +107,26 @@ public partial class LeaderboardTabView : UserControl, INotifyPropertyChanged
         ReloadLeaderboard();
     }
 
+    internal void RefreshLeaderboard() => ReloadLeaderboard();
+
     private void ReloadLeaderboard()
     {
         var mainWindow = GetMainWindow();
         if (mainWindow is null)
-        {
             return;
-        }
 
-        var ordered = mainWindow.ScoreSummaries
-            .OrderByDescending(x => x.TotalPoints)
-            .ThenByDescending(x => x.MatchesWon)
-            .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        var americano = mainWindow.AmericanoMode;
+
+        var ordered = americano
+            ? mainWindow.ScoreSummaries
+                .OrderByDescending(x => x.TotalScoredGames)
+                .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList()
+            : mainWindow.ScoreSummaries
+                .OrderByDescending(x => x.TotalPoints)
+                .ThenByDescending(x => x.MatchesWon)
+                .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
         RankedSummaries.Clear();
         for (var i = 0; i < ordered.Count; i++)
@@ -127,6 +140,7 @@ public partial class LeaderboardTabView : UserControl, INotifyPropertyChanged
                 MatchesPlayed = item.MatchesPlayed,
                 MatchesWon = item.MatchesWon,
                 TotalPoints = item.TotalPoints,
+                TotalScoredGames = item.TotalScoredGames,
                 AveragePoints = item.AveragePoints,
                 RecentMatchCount = item.RecentMatchCount,
                 RecentAverage = item.RecentAverage,
@@ -137,6 +151,8 @@ public partial class LeaderboardTabView : UserControl, INotifyPropertyChanged
         FirstPlace = ordered.ElementAtOrDefault(0);
         SecondPlace = ordered.ElementAtOrDefault(1);
         ThirdPlace = ordered.ElementAtOrDefault(2);
+
+        AmericanoBadge.IsVisible = americano;
     }
 
     private void UpdateTitle()
@@ -322,6 +338,7 @@ public partial class LeaderboardTabView : UserControl, INotifyPropertyChanged
 
     private List<LeaderboardSheetRow> BuildLeaderboardRows()
     {
+        var americano = GetMainWindow()?.AmericanoMode ?? false;
         return RankedSummaries
             .Select(row => new LeaderboardSheetRow
             {
@@ -330,8 +347,10 @@ public partial class LeaderboardTabView : UserControl, INotifyPropertyChanged
                 Level = row.Level,
                 MatchesPlayed = row.MatchesPlayed,
                 MatchesWon = row.MatchesWon,
-                TotalPoints = row.TotalPoints,
-                AveragePoints = row.AveragePoints,
+                TotalPoints = americano ? row.TotalScoredGames : row.TotalPoints,
+                AveragePoints = americano && row.MatchesPlayed > 0
+                    ? (double)row.TotalScoredGames / row.MatchesPlayed
+                    : row.AveragePoints,
                 RecentFormDisplay = row.RecentFormDisplay
             })
             .ToList();
@@ -350,6 +369,7 @@ public partial class LeaderboardTabView : UserControl, INotifyPropertyChanged
         public required int MatchesPlayed { get; init; }
         public required int MatchesWon { get; init; }
         public required int TotalPoints { get; init; }
+        public required int TotalScoredGames { get; init; }
         public required double AveragePoints { get; init; }
         public required int RecentMatchCount { get; init; }
         public required double RecentAverage { get; init; }

@@ -75,6 +75,15 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     internal MatchesTabView MatchesTabViewControl => MatchesTab;
     internal ScoresTabView ScoresTabViewControl => ScoresTab;
     internal LeaderboardTabView LeaderboardTabViewControl => LeaderboardTab;
+    internal SettingsTabView SettingsTabViewControl => SettingsTab;
+
+    internal bool AmericanoMode => _workbookService?.LoadAmericanoMode() ?? false;
+
+    internal void SetAmericanoMode(bool value)
+    {
+        _workbookService?.SaveAmericanoMode(value);
+        LeaderboardTab.RefreshLeaderboard();
+    }
 
     protected override async void OnOpened(EventArgs e)
     {
@@ -115,6 +124,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         MatchesTab.InitializeDefaults();
         PlayersTab.ReloadPlayers(includeStats: false);
+        SettingsTab.LoadSettings();
         MarkSheetAsSaved();
         SetStatus($"Dataset « {entry.Name} » chargé. Chargement des statistiques en arrière-plan...");
 

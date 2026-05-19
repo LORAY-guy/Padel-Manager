@@ -1,0 +1,68 @@
+<UserControl x:Class="Padel.Manager.Views.SettingsTabView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer>
+        <StackPanel Margin="24,20" Spacing="20" MaxWidth="600">
+
+            <TextBlock Text="Paramètres"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Foreground="#0F2A52" />
+
+            <!-- Scoring mode -->
+            <Border Padding="16"
+                    CornerRadius="8"
+                    Background="White"
+                    BorderBrush="#D8DDE8"
+                    BorderThickness="1">
+                <StackPanel Spacing="14">
+                    <TextBlock Text="Mode de classement"
+                               FontWeight="SemiBold"
+                               FontSize="13"
+                               Foreground="#0F2A52" />
+
+                    <Border Height="1" Background="#E8EDF5" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Mode Americano"
+                                       FontWeight="SemiBold"
+                                       FontSize="13" />
+                            <TextBlock TextWrapping="Wrap"
+                                       Foreground="#555"
+                                       FontSize="12"
+                                       MaxWidth="420">
+                                <Run Text="Classement par nombre de jeux marqués (scores réels) plutôt que par le système de points Victoire / Nul / Défaite." />
+                            </TextBlock>
+                            <Border x:Name="AmericanoExampleBadge"
+                                    IsVisible="False"
+                                    Padding="8,4"
+                                    Margin="0,4,0,0"
+                                    CornerRadius="4"
+                                    Background="#E8F5EE"
+                                    BorderBrush="#A3D4B8"
+                                    BorderThickness="1"
+                                    HorizontalAlignment="Left">
+                                <TextBlock Text="Ex : 6-3 → joueurs de l'équipe A reçoivent 6 pts, équipe B reçoivent 3 pts"
+                                           FontSize="11"
+                                           Foreground="#1A7F4B" />
+                            </Border>
+                        </StackPanel>
+
+                        <ToggleSwitch Grid.Column="1"
+                                      x:Name="AmericanoToggle"
+                                      VerticalAlignment="Center"
+                                      Margin="16,0,0,0"
+                                      IsCheckedChanged="AmericanoToggle_OnIsCheckedChanged" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
