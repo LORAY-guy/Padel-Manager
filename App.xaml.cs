@@ -3,10 +3,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.Threading;
-using MessageBox.Avalonia.Enums;
-using MsBox.Avalonia;
-using MsBox.Avalonia.Enums;
 using Padel.Manager.Services;
 using Padel.Manager.Views;
 using Velopack;
@@ -67,29 +63,11 @@ public partial class App : Application
             if (newVersion == null) return;
 
             await mgr.DownloadUpdatesAsync(newVersion);
-
-            await Dispatcher.UIThread.InvokeAsync(async () =>
-            {
-                var result = await MessageBoxManager.GetMessageBoxStandard(
-                    "Mise à jour disponible",
-                    $"La version {newVersion.TargetFullRelease.Version} est disponible.\nVoulez-vous redémarrer maintenant pour mettre à jour ?",
-                    ButtonEnum.YesNo
-                ).ShowAsync();
-
-                if (result == ButtonResult.Yes)
-                    mgr.ApplyUpdatesAndRestart(newVersion);
-            });
+            mgr.ApplyUpdatesAndRestart(newVersion);
         }
-        catch (Exception ex)
+        catch
         {
-            await Dispatcher.UIThread.InvokeAsync(async () =>
-            {
-                await MessageBoxManager.GetMessageBoxStandard(
-                    "Erreur de mise à jour (debug)",
-                    ex.ToString(),
-                    ButtonEnum.Ok
-                ).ShowAsync();
-            });
+            // Ignore update errors silently — the app works fine without them
         }
     }
 }
