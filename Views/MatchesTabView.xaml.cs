@@ -4,12 +4,12 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Padel.Manager.Models;
 using Padel.Manager.Services;
+using SkiaSharp;
 
 namespace Padel.Manager.Views;
 
@@ -420,49 +420,15 @@ public partial class MatchesTabView : UserControl
 
         try
         {
-            UpdatePrintableSheetHeader();
-            ApplyPrintStyle(_currentPrintStyle);
+            var date = MatchDatePicker.SelectedDate ?? DateTime.Today;
+            var title = $"MATCH DU {date:dd/MM/yyyy}";
+            var groups = mainWindow.PrintableRotationGroups.ToList();
 
-            const double dpi = 300d;
-            const double a4WidthInches = 8.27;
-            const double a4HeightInches = 11.69;
-
-            var pageWidthPx = (int)Math.Round(a4WidthInches * dpi);
-            var pageHeightPx = (int)Math.Round(a4HeightInches * dpi);
-            var pageWidthDip = pageWidthPx * 96d / dpi;
-
-            const double tableMinContentWidth = 90d + 250d + 250d + 80d + 80d;
-            var panelHPadding = PrintableSheetPanel.Padding.Left + PrintableSheetPanel.Padding.Right
-                + PrintableSheetPanel.BorderThickness.Left + PrintableSheetPanel.BorderThickness.Right;
-            var layoutWidth = Math.Max(pageWidthDip, tableMinContentWidth + panelHPadding);
-
-            var previousWidth = PrintableSheetPanel.Width;
-            var previousMinWidth = PrintableSheetPanel.MinWidth;
-            var previousMaxWidth = PrintableSheetPanel.MaxWidth;
-
-            try
-            {
-                PrintableSheetPanel.Width = layoutWidth;
-                PrintableSheetPanel.MinWidth = layoutWidth;
-                PrintableSheetPanel.MaxWidth = layoutWidth;
-                PrintableSheetPanel.Measure(new Avalonia.Size(layoutWidth, double.PositiveInfinity));
-                PrintableSheetPanel.Arrange(new Avalonia.Rect(0, 0, layoutWidth, PrintableSheetPanel.DesiredSize.Height));
-
-                await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Render);
-
-                var bitmap = new RenderTargetBitmap(
-                    new Avalonia.PixelSize(pageWidthPx, pageHeightPx),
-                    new Avalonia.Vector(dpi, dpi));
-                bitmap.Render(PrintableSheetPanel);
-                bitmap.Save(path);
-            }
-            finally
-            {
-                PrintableSheetPanel.Width = previousWidth;
-                PrintableSheetPanel.MinWidth = previousMinWidth;
-                PrintableSheetPanel.MaxWidth = previousMaxWidth;
-                PrintableSheetPanel.InvalidateMeasure();
-            }
+            using var bitmap = SheetImageRenderer.Render(title, groups, _currentPrintStyle, dpi: 300f);
+            using var image = SKImage.FromBitmap(bitmap);
+            using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+            await using var stream = File.Create(path);
+            data.SaveTo(stream);
 
             mainWindow.SetStatus($"Feuille exportée en image : {path}");
         }
@@ -488,22 +454,16 @@ public partial class MatchesTabView : UserControl
 
         try
         {
-            UpdatePrintableSheetHeader();
-            ApplyPrintStyle(_currentPrintStyle);
-
+            var date = MatchDatePicker.SelectedDate ?? DateTime.Today;
+            var title = $"MATCH DU {date:dd/MM/yyyy}";
+            var groups = mainWindow.PrintableRotationGroups.ToList();
             var tempPath = Path.Combine(Path.GetTempPath(), $"PadelSheet_{DateTime.Now:yyyyMMddHHmmss}.png");
 
-            const double dpi = 150d;
-            const double a4WidthInches = 8.27;
-            const double a4HeightInches = 11.69;
-            var pageWidthPx = (int)Math.Round(a4WidthInches * dpi);
-            var pageHeightPx = (int)Math.Round(a4HeightInches * dpi);
-
-            var bitmap = new RenderTargetBitmap(
-                new Avalonia.PixelSize(pageWidthPx, pageHeightPx),
-                new Avalonia.Vector(dpi, dpi));
-            bitmap.Render(PrintableSheetPanel);
-            bitmap.Save(tempPath);
+            using var bitmap = SheetImageRenderer.Render(title, groups, _currentPrintStyle, dpi: 150f);
+            using var image = SKImage.FromBitmap(bitmap);
+            using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+            await using var stream = File.Create(tempPath);
+            data.SaveTo(stream);
 
             OpenWithSystemDefault(tempPath);
             mainWindow.SetStatus("Feuille ouverte pour impression.");

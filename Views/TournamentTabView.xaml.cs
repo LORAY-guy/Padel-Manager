@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
@@ -9,12 +10,12 @@ using IoPath = System.IO.Path;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Padel.Manager.Models;
 using Padel.Manager.Services;
+using SkiaSharp;
 
 namespace Padel.Manager.Views;
 
@@ -553,40 +554,36 @@ public partial class TournamentTabView : UserControl
             return;
         }
 
+        var selectedDate = TournamentDatePicker.SelectedDate ?? DateTime.Today;
+        var file = await mainWindow.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Exporter le bracket",
+            DefaultExtension = "png",
+            SuggestedFileName = $"Tournoi_{selectedDate:yyyyMMdd}.png",
+            FileTypeChoices = new[] { new FilePickerFileType("Image PNG") { Patterns = new[] { "*.png" } } }
+        });
+
+        if (file is null)
+        {
+            return;
+        }
+
+        var outputPath = file.TryGetLocalPath();
+        if (string.IsNullOrWhiteSpace(outputPath))
+        {
+            return;
+        }
+
         try
         {
-            UpdateTitle();
-            ApplyPrintStyle(_currentPrintStyle);
+            var title = $"TOURNOI DU {selectedDate:dd/MM/yyyy}";
+            var matches = mainWindow.TournamentMatches.ToList();
 
-            var selectedDate = TournamentDatePicker.SelectedDate ?? DateTime.Today;
-            var file = await mainWindow.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-            {
-                Title = "Exporter le bracket",
-                DefaultExtension = "png",
-                SuggestedFileName = $"Tournoi_{selectedDate:yyyyMMdd}.png",
-                FileTypeChoices = new[] { new FilePickerFileType("Image PNG") { Patterns = new[] { "*.png" } } }
-            });
-
-            if (file is null)
-            {
-                return;
-            }
-
-            var outputPath = file.TryGetLocalPath();
-            if (string.IsNullOrWhiteSpace(outputPath))
-            {
-                return;
-            }
-
-            const double dpi = 300d;
-            const double a4WidthInches = 11.69;
-            const double a4HeightInches = 8.27;
-            var pageWidthPx = (int)Math.Round(a4WidthInches * dpi);
-            var pageHeightPx = (int)Math.Round(a4HeightInches * dpi);
-
-            var bitmap = new RenderTargetBitmap(new PixelSize(pageWidthPx, pageHeightPx), new Vector(dpi, dpi));
-            bitmap.Render(TournamentPrintablePanel);
-            bitmap.Save(outputPath);
+            using var bitmap = BracketImageRenderer.Render(title, matches, _currentPrintStyle, dpi: 300f);
+            using var image = SKImage.FromBitmap(bitmap);
+            using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+            await using var stream = File.Create(outputPath);
+            data.SaveTo(stream);
 
             mainWindow.SetStatus($"Bracket exporte en image : {outputPath}");
         }
@@ -612,22 +609,18 @@ public partial class TournamentTabView : UserControl
 
         try
         {
-            UpdateTitle();
-            ApplyPrintStyle(_currentPrintStyle);
-
-            const double dpi = 150d;
-            const double a4WidthInches = 11.69;
-            const double a4HeightInches = 8.27;
-            var pageWidthPx = (int)Math.Round(a4WidthInches * dpi);
-            var pageHeightPx = (int)Math.Round(a4HeightInches * dpi);
-
-            var bitmap = new RenderTargetBitmap(new PixelSize(pageWidthPx, pageHeightPx), new Vector(dpi, dpi));
-            bitmap.Render(TournamentPrintablePanel);
-
+            var date = TournamentDatePicker.SelectedDate ?? DateTime.Today;
+            var title = $"TOURNOI DU {date:dd/MM/yyyy}";
+            var matches = mainWindow.TournamentMatches.ToList();
             var tempPath = IoPath.Combine(IoPath.GetTempPath(), $"Tournoi_{DateTime.Now:yyyyMMddHHmmss}.png");
-            bitmap.Save(tempPath);
-            Process.Start(new ProcessStartInfo { FileName = tempPath, UseShellExecute = true });
 
+            using var bitmap = BracketImageRenderer.Render(title, matches, _currentPrintStyle, dpi: 150f);
+            using var image = SKImage.FromBitmap(bitmap);
+            using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+            await using var stream = File.Create(tempPath);
+            data.SaveTo(stream);
+
+            Process.Start(new ProcessStartInfo { FileName = tempPath, UseShellExecute = true });
             mainWindow.SetStatus("Bracket ouvert pour impression.");
         }
         catch (Exception ex)
