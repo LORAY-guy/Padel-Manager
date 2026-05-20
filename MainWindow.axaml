@@ -8,7 +8,7 @@
         Width="1280"
         MinHeight="720"
         MinWidth="1280"
-        Background="#F4F6FB">
+        Background="{DynamicResource AppBackground}">
     <Grid Margin="14">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -59,7 +59,7 @@
 
         <TabControl x:Name="MainTabControl"
                     Grid.Row="1"
-                    Background="White"
+                    Background="{DynamicResource CardBackground}"
                     FontSize="14"
                     SelectionChanged="MainTabControl_OnSelectionChanged">
             <TabItem Header="Joueurs">
@@ -91,9 +91,9 @@
                 Margin="0,10,0,0"
                 Padding="10"
                 CornerRadius="6"
-                BorderBrush="#D8DDE8"
+                BorderBrush="{DynamicResource BorderNormal}"
                 BorderThickness="1"
-                Background="#FFFFFF">
+                Background="{DynamicResource CardBackground}">
             <TextBlock x:Name="StatusTextBlock" FontWeight="SemiBold" />
         </Border>
     </Grid>

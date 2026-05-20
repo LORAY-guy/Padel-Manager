@@ -6,4 +6,71 @@
         <FluentTheme />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
     </Application.Styles>
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="AppBackground"        Color="#F4F6FB" />
+                    <SolidColorBrush x:Key="CardBackground"        Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="InfoPanelBackground"   Color="#EAF1FF" />
+                    <SolidColorBrush x:Key="BorderNormal"          Color="#D8DDE8" />
+                    <SolidColorBrush x:Key="BorderSubtle"          Color="#E8EDF5" />
+                    <SolidColorBrush x:Key="BorderAccent"          Color="#B9C9E8" />
+                    <SolidColorBrush x:Key="AccentText"            Color="#0F2A52" />
+                    <SolidColorBrush x:Key="TextMuted"             Color="#666666" />
+                    <SolidColorBrush x:Key="TextSubMuted"          Color="#888888" />
+                    <SolidColorBrush x:Key="TextVeryMuted"         Color="#999999" />
+                    <SolidColorBrush x:Key="TextPlaceholder"       Color="#BBBBBB" />
+                    <SolidColorBrush x:Key="LeaderboardSubtitle"   Color="#3A4C73" />
+                    <SolidColorBrush x:Key="DataGridBorderBrush"   Color="#CFD8E6" />
+                    <SolidColorBrush x:Key="DataGridLinesBrush"    Color="#E5EAF3" />
+                    <SolidColorBrush x:Key="DataGridRowBackground" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="Podium1Background"     Color="#FFF4CF" />
+                    <SolidColorBrush x:Key="Podium1Border"         Color="#E3C66A" />
+                    <SolidColorBrush x:Key="Podium1Score"          Color="#5B4300" />
+                    <SolidColorBrush x:Key="Podium1Label"          Color="#7E5B00" />
+                    <SolidColorBrush x:Key="Podium2Background"     Color="#F5F7FA" />
+                    <SolidColorBrush x:Key="Podium2Border"         Color="#D6D9DF" />
+                    <SolidColorBrush x:Key="Podium2Score"          Color="#2D3A55" />
+                    <SolidColorBrush x:Key="Podium2Label"          Color="#515B70" />
+                    <SolidColorBrush x:Key="Podium3Background"     Color="#FBEFE7" />
+                    <SolidColorBrush x:Key="Podium3Border"         Color="#D9B89B" />
+                    <SolidColorBrush x:Key="Podium3Score"          Color="#6B4A2E" />
+                    <SolidColorBrush x:Key="Podium3Label"          Color="#6B4A2E" />
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="AppBackground"        Color="#1A1D2E" />
+                    <SolidColorBrush x:Key="CardBackground"        Color="#242638" />
+                    <SolidColorBrush x:Key="InfoPanelBackground"   Color="#1E2845" />
+                    <SolidColorBrush x:Key="BorderNormal"          Color="#3C4060" />
+                    <SolidColorBrush x:Key="BorderSubtle"          Color="#252840" />
+                    <SolidColorBrush x:Key="BorderAccent"          Color="#2A3860" />
+                    <SolidColorBrush x:Key="AccentText"            Color="#7BADDE" />
+                    <SolidColorBrush x:Key="TextMuted"             Color="#AAAAAA" />
+                    <SolidColorBrush x:Key="TextSubMuted"          Color="#999999" />
+                    <SolidColorBrush x:Key="TextVeryMuted"         Color="#777777" />
+                    <SolidColorBrush x:Key="TextPlaceholder"       Color="#555555" />
+                    <SolidColorBrush x:Key="LeaderboardSubtitle"   Color="#7A8AA0" />
+                    <SolidColorBrush x:Key="DataGridBorderBrush"   Color="#303560" />
+                    <SolidColorBrush x:Key="DataGridLinesBrush"    Color="#2C3050" />
+                    <SolidColorBrush x:Key="DataGridRowBackground" Color="#242638" />
+                    <SolidColorBrush x:Key="Podium1Background"     Color="#2A2010" />
+                    <SolidColorBrush x:Key="Podium1Border"         Color="#7E6A20" />
+                    <SolidColorBrush x:Key="Podium1Score"          Color="#C8A840" />
+                    <SolidColorBrush x:Key="Podium1Label"          Color="#D4B040" />
+                    <SolidColorBrush x:Key="Podium2Background"     Color="#1E2238" />
+                    <SolidColorBrush x:Key="Podium2Border"         Color="#3A4060" />
+                    <SolidColorBrush x:Key="Podium2Score"          Color="#8090B0" />
+                    <SolidColorBrush x:Key="Podium2Label"          Color="#8090B0" />
+                    <SolidColorBrush x:Key="Podium3Background"     Color="#261810" />
+                    <SolidColorBrush x:Key="Podium3Border"         Color="#6B4A2E" />
+                    <SolidColorBrush x:Key="Podium3Score"          Color="#C08060" />
+                    <SolidColorBrush x:Key="Podium3Label"          Color="#C08060" />
+                </ResourceDictionary>
+
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
 </Application>

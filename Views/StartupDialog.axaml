@@ -8,7 +8,7 @@
         MinWidth="520"
         CanResize="False"
         WindowStartupLocation="CenterScreen"
-        Background="#F4F6FB">
+        Background="{DynamicResource AppBackground}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="58" />
@@ -56,11 +56,11 @@
                 <TextBlock Text="Récemment ouverts"
                            FontWeight="SemiBold"
                            FontSize="12"
-                           Foreground="#666"
+                           Foreground="{DynamicResource TextMuted}"
                            Margin="0,0,0,8" />
 
                 <Border Grid.Row="1"
-                        BorderBrush="#D8DDE8"
+                        BorderBrush="{DynamicResource BorderNormal}"
                         BorderThickness="1"
                         CornerRadius="4">
                     <Grid>
@@ -77,12 +77,12 @@
                                                    FontSize="13" />
                                         <TextBlock Text="{Binding ShortPath}"
                                                    FontSize="11"
-                                                   Foreground="#666"
+                                                   Foreground="{DynamicResource TextMuted}"
                                                    TextTrimming="CharacterEllipsis"
                                                    Margin="0,2,0,0" />
                                         <TextBlock Text="{Binding LastOpenedText}"
                                                    FontSize="10"
-                                                   Foreground="#999"
+                                                   Foreground="{DynamicResource TextVeryMuted}"
                                                    Margin="0,1,0,0" />
                                     </StackPanel>
                                 </DataTemplate>
@@ -92,7 +92,7 @@
                                    Text="Aucun dataset récent"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   Foreground="#BBB"
+                                   Foreground="{DynamicResource TextPlaceholder}"
                                    FontStyle="Italic"
                                    IsVisible="False" />
                     </Grid>
@@ -114,14 +114,14 @@
             </Grid>
 
             <!-- Separator -->
-            <Border Grid.Column="1" Background="#D8DDE8" />
+            <Border Grid.Column="1" Background="{DynamicResource BorderNormal}" />
 
             <!-- Actions -->
             <StackPanel Grid.Column="2" Margin="20,16,20,14" Spacing="8">
                 <TextBlock Text="Commencer"
                            FontWeight="SemiBold"
                            FontSize="12"
-                           Foreground="#666"
+                           Foreground="{DynamicResource TextMuted}"
                            Margin="0,0,0,4" />
                 <Button x:Name="NewDatasetButton"
                         Content="+ Nouveau dataset..."
@@ -143,8 +143,8 @@
                 x:Name="NewDatasetPanel"
                 IsVisible="False"
                 Padding="20,14"
-                Background="#EAF1FF"
-                BorderBrush="#B9C9E8"
+                Background="{DynamicResource InfoPanelBackground}"
+                BorderBrush="{DynamicResource BorderAccent}"
                 BorderThickness="0,1,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>

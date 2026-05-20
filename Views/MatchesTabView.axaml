@@ -10,7 +10,7 @@
 
         <Border Grid.Column="0"
                 Padding="10"
-                BorderBrush="#D8DDE8"
+                BorderBrush="{DynamicResource BorderNormal}"
                 BorderThickness="1"
                 CornerRadius="6">
             <Grid>
@@ -152,7 +152,7 @@
 
             <Border Grid.Row="3"
                     Margin="0,10,0,0"
-                    BorderBrush="#D8DDE8"
+                    BorderBrush="{DynamicResource BorderNormal}"
                     BorderThickness="1"
                     CornerRadius="4">
                 <DockPanel>

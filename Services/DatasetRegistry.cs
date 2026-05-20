@@ -29,17 +29,19 @@ public sealed class DatasetRegistry
 
     private readonly List<DatasetEntry> _datasets;
 
-    private DatasetRegistry(string registryPath, string defaultDatasetFolder, List<DatasetEntry> datasets, string? lastOpenedId)
+    private DatasetRegistry(string registryPath, string defaultDatasetFolder, List<DatasetEntry> datasets, string? lastOpenedId, bool darkMode)
     {
         RegistryPath = registryPath;
         DefaultDatasetFolder = defaultDatasetFolder;
         _datasets = datasets;
         LastOpenedId = lastOpenedId;
+        DarkMode = darkMode;
     }
 
     public string RegistryPath { get; }
     public string DefaultDatasetFolder { get; }
     public string? LastOpenedId { get; private set; }
+    public bool DarkMode { get; private set; }
     public IReadOnlyList<DatasetEntry> Datasets => _datasets;
 
     public static DatasetRegistry Load()
@@ -53,6 +55,7 @@ public sealed class DatasetRegistry
 
         List<DatasetEntry> datasets;
         string? lastOpenedId = null;
+        bool darkMode = false;
 
         if (File.Exists(registryPath))
         {
@@ -62,6 +65,7 @@ public sealed class DatasetRegistry
                 var stored = JsonSerializer.Deserialize<StoredRegistry>(json, JsonOptions);
                 datasets = stored?.Datasets ?? new List<DatasetEntry>();
                 lastOpenedId = stored?.LastOpenedId;
+                darkMode = stored?.DarkMode ?? false;
             }
             catch
             {
@@ -91,7 +95,7 @@ public sealed class DatasetRegistry
             }
         }
 
-        var registry = new DatasetRegistry(registryPath, defaultDatasetFolder, datasets, lastOpenedId);
+        var registry = new DatasetRegistry(registryPath, defaultDatasetFolder, datasets, lastOpenedId, darkMode);
         if (datasets.Count > 0)
         {
             registry.Save();
@@ -177,9 +181,11 @@ public sealed class DatasetRegistry
         return System.IO.Path.Combine(DefaultDatasetFolder, $"{safeName}_{Guid.NewGuid():N}.padel");
     }
 
+    public void SetDarkMode(bool value) => DarkMode = value;
+
     public void Save()
     {
-        var stored = new StoredRegistry { Datasets = _datasets, LastOpenedId = LastOpenedId };
+        var stored = new StoredRegistry { Datasets = _datasets, LastOpenedId = LastOpenedId, DarkMode = DarkMode };
         var json = JsonSerializer.Serialize(stored, JsonOptions);
         File.WriteAllText(RegistryPath, json);
     }
@@ -224,5 +230,8 @@ public sealed class DatasetRegistry
 
         [JsonPropertyName("lastOpenedId")]
         public string? LastOpenedId { get; set; }
+
+        [JsonPropertyName("darkMode")]
+        public bool DarkMode { get; set; }
     }
 }

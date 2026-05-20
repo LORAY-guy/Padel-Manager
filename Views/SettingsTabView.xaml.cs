@@ -24,6 +24,7 @@ public partial class SettingsTabView : UserControl
         var americano = mainWindow.AmericanoMode;
         AmericanoToggle.IsChecked = americano;
         AmericanoExampleBadge.IsVisible = americano;
+        DarkModeToggle.IsChecked = mainWindow.DarkMode;
         _loading = false;
     }
 
@@ -36,6 +37,15 @@ public partial class SettingsTabView : UserControl
             VersionText.Text = AppText.Version;
             VersionSection.IsVisible = true;
         }
+    }
+
+    private void DarkModeToggle_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
+    {
+        if (_loading) return;
+        var mainWindow = GetMainWindow();
+        if (mainWindow is null) return;
+
+        mainWindow.SetDarkMode(DarkModeToggle.IsChecked == true);
     }
 
     private void AmericanoToggle_OnIsCheckedChanged(object? sender, RoutedEventArgs e)

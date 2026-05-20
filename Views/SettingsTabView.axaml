@@ -8,21 +8,21 @@
             <TextBlock Text="Paramètres"
                        FontSize="22"
                        FontWeight="Bold"
-                       Foreground="#0F2A52" />
+                       Foreground="{DynamicResource AccentText}" />
 
             <!-- Scoring mode -->
             <Border Padding="16"
                     CornerRadius="8"
-                    Background="White"
-                    BorderBrush="#D8DDE8"
+                    Background="{DynamicResource CardBackground}"
+                    BorderBrush="{DynamicResource BorderNormal}"
                     BorderThickness="1">
                 <StackPanel Spacing="14">
                     <TextBlock Text="Mode de classement"
                                FontWeight="SemiBold"
                                FontSize="13"
-                               Foreground="#0F2A52" />
+                               Foreground="{DynamicResource AccentText}" />
 
-                    <Border Height="1" Background="#E8EDF5" />
+                    <Border Height="1" Background="{DynamicResource BorderSubtle}" />
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -35,7 +35,7 @@
                                        FontWeight="SemiBold"
                                        FontSize="13" />
                             <TextBlock TextWrapping="Wrap"
-                                       Foreground="#555"
+                                       Foreground="{DynamicResource TextMuted}"
                                        FontSize="12"
                                        MaxWidth="420">
                                 <Run Text="Classement par nombre de jeux marqués (scores réels) plutôt que par le système de points Victoire / Nul / Défaite." />
@@ -64,13 +64,53 @@
                 </StackPanel>
             </Border>
 
+            <!-- Appearance -->
+            <Border Padding="16"
+                    CornerRadius="8"
+                    Background="{DynamicResource CardBackground}"
+                    BorderBrush="{DynamicResource BorderNormal}"
+                    BorderThickness="1">
+                <StackPanel Spacing="14">
+                    <TextBlock Text="Apparence"
+                               FontWeight="SemiBold"
+                               FontSize="13"
+                               Foreground="{DynamicResource AccentText}" />
+
+                    <Border Height="1" Background="{DynamicResource BorderSubtle}" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Mode sombre"
+                                       FontWeight="SemiBold"
+                                       FontSize="13" />
+                            <TextBlock Text="Interface en thème sombre."
+                                       TextWrapping="Wrap"
+                                       Foreground="{DynamicResource TextMuted}"
+                                       FontSize="12"
+                                       MaxWidth="420" />
+                        </StackPanel>
+
+                        <ToggleSwitch Grid.Column="1"
+                                      x:Name="DarkModeToggle"
+                                      VerticalAlignment="Center"
+                                      Margin="16,0,0,0"
+                                      IsCheckedChanged="DarkModeToggle_OnIsCheckedChanged" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
             <!-- Version -->
             <Border x:Name="VersionSection"
                     IsVisible="False"
                     Padding="16"
                     CornerRadius="8"
-                    Background="White"
-                    BorderBrush="#D8DDE8"
+                    Background="{DynamicResource CardBackground}"
+                    BorderBrush="{DynamicResource BorderNormal}"
                     BorderThickness="1">
                 <Grid>
                     <TextBlock Text="Version"
@@ -80,7 +120,7 @@
                                HorizontalAlignment="Right"
                                FontSize="13"
                                FontWeight="SemiBold"
-                               Foreground="#0F2A52" />
+                               Foreground="{DynamicResource AccentText}" />
                 </Grid>
             </Border>
 

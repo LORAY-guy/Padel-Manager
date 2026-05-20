@@ -11,7 +11,7 @@
         <Border Grid.Row="0"
                 Margin="0,0,0,10"
                 Padding="10"
-                BorderBrush="#D8DDE8"
+                BorderBrush="{DynamicResource BorderNormal}"
                 BorderThickness="1"
                 CornerRadius="6">
             <Grid VerticalAlignment="Center">

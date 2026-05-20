@@ -2,7 +2,7 @@
              x:Name="Root"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid Margin="10" Background="#F5F7FC">
+    <Grid Margin="10" Background="{DynamicResource AppBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -21,7 +21,7 @@
                 <TextBlock Text="Classement global"
                            FontWeight="Bold"
                            FontSize="22"
-                           Foreground="#0F2A52"
+                           Foreground="{DynamicResource AccentText}"
                            VerticalAlignment="Center" />
                 <Border x:Name="AmericanoBadge"
                         IsVisible="False"
@@ -41,7 +41,7 @@
                        Text="Joueurs / feuille"
                        VerticalAlignment="Center"
                        Margin="0,10,8,0"
-                       Foreground="#0F2A52"
+                       Foreground="{DynamicResource AccentText}"
                        FontWeight="SemiBold" />
 
             <TextBox Grid.Column="2"
@@ -71,8 +71,8 @@
         <Border Grid.Row="1"
                 x:Name="LeaderboardPrintablePanel"
                 Padding="16"
-                Background="#FBFCFF"
-                BorderBrush="#CDD7EA"
+                Background="{DynamicResource CardBackground}"
+                BorderBrush="{DynamicResource DataGridBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="6"
                 ClipToBounds="True">
@@ -87,21 +87,21 @@
                         Margin="0,0,0,12"
                         Padding="12"
                         CornerRadius="6"
-                        BorderBrush="#B9C9E8"
+                        BorderBrush="{DynamicResource BorderAccent}"
                         BorderThickness="1"
-                        Background="#EAF1FF">
+                        Background="{DynamicResource InfoPanelBackground}">
                     <StackPanel>
                         <TextBlock x:Name="LeaderboardTitleTextBlock"
                                    Text="CLASSEMENT GLOBAL"
                                    FontSize="28"
                                    FontWeight="Bold"
                                    HorizontalAlignment="Center"
-                                   Foreground="#0F2A52" />
+                                   Foreground="{DynamicResource AccentText}" />
                         <TextBlock x:Name="LeaderboardSubtitleTextBlock"
                                    Text=""
                                    FontSize="13"
                                    HorizontalAlignment="Center"
-                                   Foreground="#3A4C73" />
+                                   Foreground="{DynamicResource LeaderboardSubtitle}" />
                     </StackPanel>
                 </Border>
 
@@ -114,27 +114,27 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Padding="10" CornerRadius="6" BorderBrush="#D6D9DF" BorderThickness="1" Background="#F5F7FA">
+                    <Border Grid.Column="0" Padding="10" CornerRadius="6" BorderBrush="{DynamicResource Podium2Border}" BorderThickness="1" Background="{DynamicResource Podium2Background}">
                         <StackPanel>
-                            <TextBlock Text="2ème" FontWeight="Bold" Foreground="#515B70" HorizontalAlignment="Center" />
+                            <TextBlock Text="2ème" FontWeight="Bold" Foreground="{DynamicResource Podium2Label}" HorizontalAlignment="Center" />
                             <TextBlock Text="{Binding SecondPlace.Name, ElementName=Root}" FontWeight="SemiBold" HorizontalAlignment="Center" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding SecondPlaceScore, ElementName=Root, StringFormat=\{0\} pts}" HorizontalAlignment="Center" Foreground="#2D3A55" />
+                            <TextBlock Text="{Binding SecondPlaceScore, ElementName=Root, StringFormat=\{0\} pts}" HorizontalAlignment="Center" Foreground="{DynamicResource Podium2Score}" />
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="2" Padding="10" CornerRadius="6" BorderBrush="#E3C66A" BorderThickness="1" Background="#FFF4CF">
+                    <Border Grid.Column="2" Padding="10" CornerRadius="6" BorderBrush="{DynamicResource Podium1Border}" BorderThickness="1" Background="{DynamicResource Podium1Background}">
                         <StackPanel>
-                            <TextBlock Text="1er" FontWeight="Bold" Foreground="#7E5B00" HorizontalAlignment="Center" />
+                            <TextBlock Text="1er" FontWeight="Bold" Foreground="{DynamicResource Podium1Label}" HorizontalAlignment="Center" />
                             <TextBlock Text="{Binding FirstPlace.Name, ElementName=Root}" FontWeight="Bold" HorizontalAlignment="Center" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding FirstPlaceScore, ElementName=Root, StringFormat=\{0\} pts}" HorizontalAlignment="Center" Foreground="#5B4300" />
+                            <TextBlock Text="{Binding FirstPlaceScore, ElementName=Root, StringFormat=\{0\} pts}" HorizontalAlignment="Center" Foreground="{DynamicResource Podium1Score}" />
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="4" Padding="10" CornerRadius="6" BorderBrush="#D9B89B" BorderThickness="1" Background="#FBEFE7">
+                    <Border Grid.Column="4" Padding="10" CornerRadius="6" BorderBrush="{DynamicResource Podium3Border}" BorderThickness="1" Background="{DynamicResource Podium3Background}">
                         <StackPanel>
-                            <TextBlock Text="3ème" FontWeight="Bold" Foreground="#6B4A2E" HorizontalAlignment="Center" />
+                            <TextBlock Text="3ème" FontWeight="Bold" Foreground="{DynamicResource Podium3Label}" HorizontalAlignment="Center" />
                             <TextBlock Text="{Binding ThirdPlace.Name, ElementName=Root}" FontWeight="SemiBold" HorizontalAlignment="Center" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding ThirdPlaceScore, ElementName=Root, StringFormat=\{0\} pts}" HorizontalAlignment="Center" Foreground="#6B4A2E" />
+                            <TextBlock Text="{Binding ThirdPlaceScore, ElementName=Root, StringFormat=\{0\} pts}" HorizontalAlignment="Center" Foreground="{DynamicResource Podium3Score}" />
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -145,10 +145,10 @@
                           AutoGenerateColumns="False"
                           IsReadOnly="True"
                           GridLinesVisibility="Horizontal"
-                          HorizontalGridLinesBrush="#E5EAF3"
+                          HorizontalGridLinesBrush="{DynamicResource DataGridLinesBrush}"
                           BorderThickness="1"
-                          BorderBrush="#CFD8E6"
-                          RowBackground="White">
+                          BorderBrush="{DynamicResource DataGridBorderBrush}"
+                          RowBackground="{DynamicResource DataGridRowBackground}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="55" />
                         <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="*" MinWidth="180" />

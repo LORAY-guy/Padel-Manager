@@ -7,6 +7,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using MessageBox.Avalonia.Enums;
 using MsBox.Avalonia;
@@ -83,6 +84,16 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         _workbookService?.SaveAmericanoMode(value);
         LeaderboardTab.RefreshLeaderboard();
+    }
+
+    internal bool DarkMode => _datasetRegistry?.DarkMode ?? false;
+
+    internal void SetDarkMode(bool value)
+    {
+        if (_datasetRegistry is null) return;
+        _datasetRegistry.SetDarkMode(value);
+        _datasetRegistry.Save();
+        Application.Current!.RequestedThemeVariant = value ? ThemeVariant.Dark : ThemeVariant.Light;
     }
 
     protected override async void OnOpened(EventArgs e)

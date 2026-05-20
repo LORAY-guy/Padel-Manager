@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 using Padel.Manager.Services;
 using Padel.Manager.Views;
 using Velopack;
@@ -27,6 +28,9 @@ public partial class App : Application
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
             var registry = DatasetRegistry.Load();
+            if (registry.DarkMode)
+                RequestedThemeVariant = ThemeVariant.Dark;
+
             var startup = new StartupDialog(registry);
             desktop.MainWindow = startup;
 

@@ -6,7 +6,7 @@
         Width="480"
         WindowStartupLocation="CenterOwner"
         CanResize="False"
-        Background="#F5F7FB">
+        Background="{DynamicResource AppBackground}">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -24,7 +24,7 @@
 
         <!-- Équipe A -->
         <Border Grid.Row="1" Margin="0,0,0,15" Padding="12"
-                BorderBrush="#D8DDE8" BorderThickness="1" CornerRadius="4">
+                BorderBrush="{DynamicResource BorderNormal}" BorderThickness="1" CornerRadius="4">
             <DockPanel>
                 <TextBlock DockPanel.Dock="Top" Text="Équipe A"
                            FontWeight="SemiBold" Margin="0,0,0,8" />
@@ -53,7 +53,7 @@
                                x:Name="TeamACurrentLabel"
                                Margin="0,8,0,0"
                                FontSize="11"
-                               Foreground="#666"
+                               Foreground="{DynamicResource TextMuted}"
                                TextWrapping="Wrap" />
                 </Grid>
             </DockPanel>
@@ -61,7 +61,7 @@
 
         <!-- Équipe B -->
         <Border Grid.Row="2" Margin="0,0,0,15" Padding="12"
-                BorderBrush="#D8DDE8" BorderThickness="1" CornerRadius="4">
+                BorderBrush="{DynamicResource BorderNormal}" BorderThickness="1" CornerRadius="4">
             <DockPanel>
                 <TextBlock DockPanel.Dock="Top" Text="Équipe B"
                            FontWeight="SemiBold" Margin="0,0,0,8" />
@@ -90,7 +90,7 @@
                                x:Name="TeamBCurrentLabel"
                                Margin="0,8,0,0"
                                FontSize="11"
-                               Foreground="#666"
+                               Foreground="{DynamicResource TextMuted}"
                                TextWrapping="Wrap" />
                 </Grid>
             </DockPanel>
