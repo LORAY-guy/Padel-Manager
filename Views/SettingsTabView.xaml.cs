@@ -27,7 +27,16 @@ public partial class SettingsTabView : UserControl
         _loading = false;
     }
 
-    private void OnLoaded(object? sender, RoutedEventArgs e) => LoadSettings();
+    private void OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        LoadSettings();
+
+        if (!string.IsNullOrEmpty(AppText.Version))
+        {
+            VersionText.Text = AppText.Version;
+            VersionSection.IsVisible = true;
+        }
+    }
 
     private void AmericanoToggle_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
     {

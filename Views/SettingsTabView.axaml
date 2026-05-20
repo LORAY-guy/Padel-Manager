@@ -1,6 +1,7 @@
 <UserControl x:Class="Padel.Manager.Views.SettingsTabView"
              xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Padel.Manager">
     <ScrollViewer>
         <StackPanel Margin="24,20" Spacing="20" MaxWidth="600">
 
@@ -61,6 +62,26 @@
                                       IsCheckedChanged="AmericanoToggle_OnIsCheckedChanged" />
                     </Grid>
                 </StackPanel>
+            </Border>
+
+            <!-- Version -->
+            <Border x:Name="VersionSection"
+                    IsVisible="False"
+                    Padding="16"
+                    CornerRadius="8"
+                    Background="White"
+                    BorderBrush="#D8DDE8"
+                    BorderThickness="1">
+                <Grid>
+                    <TextBlock Text="Version"
+                               FontSize="13"
+                               Foreground="#555" />
+                    <TextBlock x:Name="VersionText"
+                               HorizontalAlignment="Right"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="#0F2A52" />
+                </Grid>
             </Border>
 
         </StackPanel>

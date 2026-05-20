@@ -1,6 +1,7 @@
 <Window x:Class="Padel.Manager.Views.StartupDialog"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Padel.Manager"
         Title="Padel Manager"
         Width="640"
         SizeToContent="Height"
@@ -17,16 +18,23 @@
 
         <!-- Header -->
         <Border Grid.Row="0" Background="#0F2A52">
-            <StackPanel VerticalAlignment="Center" Margin="24,0">
-                <TextBlock Text="Padel Manager"
-                           Foreground="White"
-                           FontSize="18"
-                           FontWeight="Bold" />
-                <TextBlock Text="Choisissez un dataset pour commencer"
+            <Grid Margin="24,0">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Padel Manager"
+                               Foreground="White"
+                               FontSize="18"
+                               FontWeight="Bold" />
+                    <TextBlock Text="Choisissez un dataset pour commencer"
+                               Foreground="#9BBFE0"
+                               FontSize="11"
+                               Margin="0,2,0,0" />
+                </StackPanel>
+                <TextBlock Text="{x:Static local:AppText.Version}"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
                            Foreground="#9BBFE0"
-                           FontSize="11"
-                           Margin="0,2,0,0" />
-            </StackPanel>
+                           FontSize="11" />
+            </Grid>
         </Border>
 
         <!-- Main content -->
