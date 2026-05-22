@@ -6,7 +6,6 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using Padel.Manager.Services;
 using Padel.Manager.Views;
-using Velopack;
 
 namespace Padel.Manager;
 
@@ -49,29 +48,9 @@ public partial class App : Application
                 mainWindow.Closed += (_, _) => desktop.Shutdown(0);
                 desktop.MainWindow = mainWindow;
                 mainWindow.Show();
-                _ = CheckForUpdatesAsync();
             };
         }
 
         base.OnFrameworkInitializationCompleted();
-    }
-
-    private static async Task CheckForUpdatesAsync()
-    {
-        try
-        {
-            var mgr = new UpdateManager("https://github.com/LORAY-guy/Padel-Manager");
-            if (!mgr.IsInstalled) return;
-
-            var newVersion = await mgr.CheckForUpdatesAsync();
-            if (newVersion == null) return;
-
-            await mgr.DownloadUpdatesAsync(newVersion);
-            mgr.ApplyUpdatesAndRestart(newVersion);
-        }
-        catch
-        {
-            // Ignore update errors silently — the app works fine without them
-        }
     }
 }

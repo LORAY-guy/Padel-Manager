@@ -117,6 +117,17 @@ public partial class MatchesTabView : UserControl
             : "Match supprimé du planning courant.");
     }
 
+    private void MatchPlayerSearchBox_TextChanged(object? sender, TextChangedEventArgs e)
+    {
+        var mainWindow = GetMainWindow();
+        if (mainWindow is null) return;
+
+        var filter = MatchPlayerSearchBox.Text?.Trim() ?? "";
+        MatchPlayerPoolListBox.ItemsSource = string.IsNullOrEmpty(filter)
+            ? (System.Collections.IEnumerable)mainWindow.PlayerPool
+            : mainWindow.PlayerPool.Where(p => p.Player.Name.Contains(filter, StringComparison.OrdinalIgnoreCase));
+    }
+
     private void SelectAllPlayersButton_OnClick(object sender, RoutedEventArgs e)
     {
         var mainWindow = GetMainWindow();

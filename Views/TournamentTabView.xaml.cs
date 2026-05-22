@@ -91,6 +91,17 @@ public partial class TournamentTabView : UserControl
         UpdateTitle();
     }
 
+    private void TournamentPlayerSearchBox_TextChanged(object? sender, TextChangedEventArgs e)
+    {
+        var mainWindow = GetMainWindow();
+        if (mainWindow is null) return;
+
+        var filter = TournamentPlayerSearchBox.Text?.Trim() ?? "";
+        TournamentPlayerPoolListBox.ItemsSource = string.IsNullOrEmpty(filter)
+            ? (System.Collections.IEnumerable)mainWindow.TournamentPlayerPool
+            : mainWindow.TournamentPlayerPool.Where(p => p.Player.Name.Contains(filter, StringComparison.OrdinalIgnoreCase));
+    }
+
     private void SelectAllPlayersButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (GetMainWindow() is not { } mainWindow)

@@ -10,12 +10,12 @@ public sealed class LeaderboardSheetService
     private const float A4HeightInches = 8.27f;
     private const float MarginPx = 40f * (Dpi / 96f);
 
-    private const float PanelPadding = 16f * (Dpi / 96f);
-    private const float HeaderBlockHeight = 84f * (Dpi / 96f);
-    private const float PodiumBlockHeight = 76f * (Dpi / 96f);
-    private const float HeaderToPodiumGap = 12f * (Dpi / 96f);
-    private const float PodiumToTableGap = 12f * (Dpi / 96f);
-    private const float TableHeaderHeight = 24f * (Dpi / 96f);
+    private const float PanelPadding = 24f * (Dpi / 96f);
+    private const float HeaderBlockHeight = 106f * (Dpi / 96f);
+    private const float PodiumBlockHeight = 98f * (Dpi / 96f);
+    private const float HeaderToPodiumGap = 20f * (Dpi / 96f);
+    private const float PodiumToTableGap = 20f * (Dpi / 96f);
+    private const float TableHeaderHeight = 34f * (Dpi / 96f);
 
     public int PageWidthPx { get; } = (int)Math.Round(A4WidthInches * Dpi);
     public int PageHeightPx { get; } = (int)Math.Round(A4HeightInches * Dpi);
@@ -99,9 +99,9 @@ public sealed class LeaderboardSheetService
         var subtitle = $"Top {Math.Max(3, totalRows)} joueurs - Page {pageNumber}/{totalPages}";
 
         DrawCenteredText(canvas, title, true, ScalePt(28f), ParseHex("#0F2A52"),
-            new SKRect(rect.Left, rect.Top + ScalePx(8f), rect.Right, rect.Top + ScalePx(8f) + ScalePx(42f)));
+            new SKRect(rect.Left, rect.Top + ScalePx(10f), rect.Right, rect.Top + ScalePx(10f) + ScalePx(52f)));
         DrawCenteredText(canvas, subtitle, false, ScalePt(13f), ParseHex("#3A4C73"),
-            new SKRect(rect.Left, rect.Top + ScalePx(48f), rect.Right, rect.Top + ScalePx(48f) + ScalePx(24f)));
+            new SKRect(rect.Left, rect.Top + ScalePx(66f), rect.Right, rect.Top + ScalePx(66f) + ScalePx(30f)));
     }
 
     private static void DrawPodium(SKCanvas canvas, float x, float y, float width, IReadOnlyList<LeaderboardSheetRow> allRows)
@@ -129,11 +129,11 @@ public sealed class LeaderboardSheetService
         canvas.DrawRoundRect(rect, 6f, 6f, stroke);
 
         DrawCenteredText(canvas, label, true, ScalePt(16f), ParseHex(textHex),
-            new SKRect(rect.Left, rect.Top + ScalePx(6f), rect.Right, rect.Top + ScalePx(6f) + ScalePx(22f)));
+            new SKRect(rect.Left, rect.Top + ScalePx(8f), rect.Right, rect.Top + ScalePx(8f) + ScalePx(26f)));
         DrawCenteredText(canvas, row?.Name ?? "-", highlight, ScalePt(highlight ? 16f : 14f), SKColors.Black,
-            new SKRect(rect.Left + ScalePx(6f), rect.Top + ScalePx(28f), rect.Right - ScalePx(6f), rect.Top + ScalePx(28f) + ScalePx(24f)));
+            new SKRect(rect.Left + ScalePx(6f), rect.Top + ScalePx(38f), rect.Right - ScalePx(6f), rect.Top + ScalePx(38f) + ScalePx(28f)));
         DrawCenteredText(canvas, row is null ? "0 pts" : $"{row.TotalPoints} pts", false, ScalePt(14f), ParseHex(textHex),
-            new SKRect(rect.Left, rect.Top + ScalePx(52f), rect.Right, rect.Top + ScalePx(52f) + ScalePx(20f)));
+            new SKRect(rect.Left, rect.Top + ScalePx(70f), rect.Right, rect.Top + ScalePx(70f) + ScalePx(22f)));
     }
 
     private static void DrawTable(SKCanvas canvas, float x, float y, float width, float bottom, IReadOnlyList<LeaderboardSheetRow> pageRows, int playersPerSheet)
@@ -147,8 +147,8 @@ public sealed class LeaderboardSheetService
         canvas.DrawRect(tableRect, new SKPaint { Color = SKColors.White });
         canvas.DrawRect(tableRect, borderPaint);
 
-        var nameWidth = Math.Max(ScalePx(180f), width - ScalePx(55f + 90f + 95f + 95f + 90f + 100f + 120f));
-        var colWidths = new[] { ScalePx(55f), nameWidth, ScalePx(90f), ScalePx(95f), ScalePx(95f), ScalePx(90f), ScalePx(100f), ScalePx(120f) };
+        var nameWidth = Math.Max(ScalePx(180f), width - ScalePx(55f + 90f + 95f + 95f + 90f + 100f + 140f));
+        var colWidths = new[] { ScalePx(55f), nameWidth, ScalePx(90f), ScalePx(95f), ScalePx(95f), ScalePx(90f), ScalePx(100f), ScalePx(140f) };
         var colHeaders = new[] { "#", "Nom", "Niveau", "Joués", "Gagnés", "Points", "Moyenne", "Forme récente" };
 
         var headerRect = new SKRect(tableRect.Left, tableRect.Top, tableRect.Right, tableRect.Top + TableHeaderHeight);
@@ -214,13 +214,13 @@ public sealed class LeaderboardSheetService
 
     private static void DrawCenteredText(SKCanvas canvas, string text, bool bold, float fontSize, SKColor color, SKRect bounds)
     {
+        using var typeface = ResolveTypeface(text, bold);
         using var paint = new SKPaint
         {
             Color = color,
             IsAntialias = true,
             TextSize = fontSize,
-            Typeface = bold ? SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
-                            : SKTypeface.FromFamilyName("Arial"),
+            Typeface = typeface,
             TextAlign = SKTextAlign.Center
         };
 
@@ -233,6 +233,44 @@ public sealed class LeaderboardSheetService
         canvas.ClipRect(bounds);
         canvas.DrawText(text, textX, textY, paint);
         canvas.Restore();
+    }
+
+    /// <summary>
+    /// Finds a typeface that can actually render <paramref name="text"/>.
+    /// Prioritises characters beyond U+00FF (e.g. ▶ U+25B6) because those are
+    /// the ones most likely to be absent from the default Latin font on Linux.
+    /// A font that covers Geometric Shapes (Noto Sans, DejaVu Sans, …) will also
+    /// cover accented Latin, so one lookup is enough for the common case.
+    /// </summary>
+    private static SKTypeface ResolveTypeface(string text, bool bold)
+    {
+        var style = bold
+            ? new SKFontStyle(SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+            : SKFontStyle.Normal;
+
+        // First pass: characters beyond Latin Extended (U+00FF) — symbols, arrows, etc.
+        foreach (char c in text)
+        {
+            if (c <= 0x00FF)
+                continue;
+
+            var matched = SKFontManager.Default.MatchCharacter(null, style, null, c);
+            if (matched is not null)
+                return matched;
+        }
+
+        // Second pass: accented Latin and other Latin Extended (U+0080–U+00FF)
+        foreach (char c in text)
+        {
+            if (c <= 0x7E || c > 0x00FF)
+                continue;
+
+            var matched = SKFontManager.Default.MatchCharacter(null, style, null, c);
+            if (matched is not null)
+                return matched;
+        }
+
+        return SKTypeface.FromFamilyName(null, style) ?? SKTypeface.FromFamilyName(null);
     }
 
     private static SKColor ParseHex(string hex)

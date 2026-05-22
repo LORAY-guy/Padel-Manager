@@ -5,6 +5,11 @@
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+        <Style Selector="ListBox">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
     </Application.Styles>
     <Application.Resources>
         <ResourceDictionary>
@@ -38,6 +43,11 @@
                     <SolidColorBrush x:Key="Podium3Border"         Color="#D9B89B" />
                     <SolidColorBrush x:Key="Podium3Score"          Color="#6B4A2E" />
                     <SolidColorBrush x:Key="Podium3Label"          Color="#6B4A2E" />
+                    <!-- Fluent ListBoxItem state overrides -->
+                    <SolidColorBrush x:Key="ListBoxItemBackgroundPointerOver"         Color="#E5EDF9" />
+                    <SolidColorBrush x:Key="ListBoxItemBackgroundSelected"            Color="#CBDCF2" />
+                    <SolidColorBrush x:Key="ListBoxItemBackgroundSelectedPointerOver" Color="#BDD3EF" />
+                    <SolidColorBrush x:Key="ListBoxItemBackgroundSelectedPressed"     Color="#ADC5E8" />
                 </ResourceDictionary>
 
                 <ResourceDictionary x:Key="Dark">
@@ -68,6 +78,20 @@
                     <SolidColorBrush x:Key="Podium3Border"         Color="#6B4A2E" />
                     <SolidColorBrush x:Key="Podium3Score"          Color="#C08060" />
                     <SolidColorBrush x:Key="Podium3Label"          Color="#C08060" />
+                    <!-- Fluent ListBoxItem state overrides — match blue-slate dark palette -->
+                    <SolidColorBrush x:Key="ListBoxItemBackgroundPointerOver"         Color="#2A2E50" />
+                    <SolidColorBrush x:Key="ListBoxItemBackgroundSelected"            Color="#1F2B55" />
+                    <SolidColorBrush x:Key="ListBoxItemBackgroundSelectedPointerOver" Color="#253265" />
+                    <SolidColorBrush x:Key="ListBoxItemBackgroundSelectedPressed"     Color="#1A2550" />
+                    <!-- Fluent CheckBox unchecked appearance — prevent white box on dark background -->
+                    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillUnchecked"                Color="#252A42" />
+                    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillUncheckedPointerOver"     Color="#2D3258" />
+                    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillUncheckedPressed"         Color="#222840" />
+                    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeUnchecked"              Color="#5878A0" />
+                    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeUncheckedPointerOver"   Color="#7BADDE" />
+                    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillChecked"                  Color="#2563A8" />
+                    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillCheckedPointerOver"       Color="#3070B8" />
+                    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeChecked"                Color="#2563A8" />
                 </ResourceDictionary>
 
             </ResourceDictionary.ThemeDictionaries>

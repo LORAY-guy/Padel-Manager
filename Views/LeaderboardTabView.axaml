@@ -150,14 +150,14 @@
                           BorderBrush="{DynamicResource DataGridBorderBrush}"
                           RowBackground="{DynamicResource DataGridRowBackground}">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="55" />
+                        <DataGridTextColumn Header="#" Binding="{Binding Rank}" Width="Auto" />
                         <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="*" MinWidth="180" />
-                        <DataGridTextColumn Header="Joués" Binding="{Binding MatchesPlayed}" Width="95" />
-                        <DataGridTextColumn Header="Gagnés" Binding="{Binding MatchesWon}" Width="95" />
-                        <DataGridTextColumn Header="Points" Binding="{Binding TotalPoints}" Width="90" />
-                        <DataGridTextColumn Header="Pts marqués" Binding="{Binding TotalScoredGames}" Width="100" />
-                        <DataGridTextColumn Header="Moyenne" Binding="{Binding AveragePoints, StringFormat=F2}" Width="100" />
-                        <DataGridTextColumn Header="Forme récente" Binding="{Binding RecentFormDisplay}" Width="160" />
+                        <DataGridTextColumn Header="Matches Joués" Binding="{Binding MatchesPlayed}" Width="Auto" />
+                        <DataGridTextColumn Header="Matches Gagnés" Binding="{Binding MatchesWon}" Width="Auto" />
+                        <DataGridTextColumn Header="Pts Total" Binding="{Binding TotalPoints}" Width="Auto" />
+                        <DataGridTextColumn Header="Pts marqués" Binding="{Binding TotalScoredGames}" Width="Auto" />
+                        <DataGridTextColumn Header="Moyenne" Binding="{Binding AveragePoints, StringFormat=F2}" Width="Auto" />
+                        <DataGridTextColumn Header="Forme récente" Binding="{Binding RecentFormDisplay}" Width="Auto" />
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>

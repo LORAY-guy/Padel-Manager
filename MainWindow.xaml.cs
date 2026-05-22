@@ -99,6 +99,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     protected override async void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
+        _ = CheckForUpdatesAsync();
         if (_preloadedRegistry is null || _preloadedEntry is null)
             return;
         try
@@ -272,10 +273,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             Title = "Exporter les données en XLSX",
             DefaultExtension = "xlsx",
             SuggestedFileName = $"PadelExport_{DateTime.Today:yyyyMMdd}.xlsx",
-            FileTypeChoices = new[]
-            {
+            FileTypeChoices =
+            [
                 new FilePickerFileType("Fichier Excel") { Patterns = new[] { "*.xlsx" } }
-            }
+            ]
         });
 
         if (file is null)
@@ -451,5 +452,28 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             ButtonResult.No => false,
             _ => null
         };
+    }
+
+    internal async Task CheckForUpdatesAsync()
+    {
+        try
+        {
+            var update = await UpdateService.CheckForUpdateAsync();
+            if (update is null) return;
+
+            var box = MessageBoxManager.GetMessageBoxStandard(
+                "Mise à jour disponible",
+                $"Une nouvelle version (v{update.Version}) est disponible.\nTélécharger et installer maintenant ?",
+                ButtonEnum.YesNo);
+
+            var result = await box.ShowWindowDialogAsync(this);
+            if (result != ButtonResult.Yes) return;
+
+            await UpdateService.DownloadAndLaunchAsync(update.DownloadUrl);
+        }
+        catch
+        {
+            // Ignore update errors — the app works fine without them
+        }
     }
 }
