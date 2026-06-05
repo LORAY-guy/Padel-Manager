@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Padel.Manager"
         Title="Padel Manager"
-        Width="640"
+        Width="720"
         SizeToContent="Height"
-        MinWidth="520"
+        MinWidth="670"
         CanResize="False"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource AppBackground}">
@@ -42,7 +42,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="1" />
-                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="240" />
             </Grid.ColumnDefinitions>
 
             <!-- Recent list -->
@@ -72,10 +72,22 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Margin="6,5">
-                                        <TextBlock Text="{Binding Name}"
-                                                   FontWeight="SemiBold"
-                                                   FontSize="13" />
-                                        <TextBlock Text="{Binding ShortPath}"
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding Name}"
+                                                       FontWeight="SemiBold"
+                                                       FontSize="13" />
+                                            <Border IsVisible="{Binding IsServer}"
+                                                    VerticalAlignment="Center"
+                                                    Background="#1F6FEB"
+                                                    CornerRadius="3"
+                                                    Padding="5,1">
+                                                <TextBlock Text="Serveur"
+                                                           Foreground="White"
+                                                           FontSize="9"
+                                                           FontWeight="SemiBold" />
+                                            </Border>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding LocationLabel}"
                                                    FontSize="11"
                                                    Foreground="{DynamicResource TextMuted}"
                                                    TextTrimming="CharacterEllipsis"
@@ -110,6 +122,11 @@
                             Padding="14,8"
                             IsEnabled="False"
                             Click="ShowLocationButton_OnClick" />
+                    <Button x:Name="UploadButton"
+                            Content="Téléverser vers le serveur"
+                            Padding="14,8"
+                            IsEnabled="False"
+                            Click="UploadButton_OnClick" />
                 </StackPanel>
             </Grid>
 
@@ -135,6 +152,21 @@
                         Padding="12,8"
                         FontSize="13"
                         Click="OpenFileButton_OnClick" />
+
+                <Border Height="1"
+                        Margin="0,6"
+                        Background="{DynamicResource BorderNormal}" />
+                <TextBlock Text="Serveur"
+                           FontWeight="SemiBold"
+                           FontSize="12"
+                           Foreground="{DynamicResource TextMuted}"
+                           Margin="0,0,0,4" />
+                <Button x:Name="ServerButton"
+                        Content="Se connecter au serveur..."
+                        HorizontalAlignment="Stretch"
+                        Padding="12,8"
+                        FontSize="13"
+                        Click="ServerButton_OnClick" />
             </StackPanel>
         </Grid>
 

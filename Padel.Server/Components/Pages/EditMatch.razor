@@ -1,0 +1,90 @@
+@page "/datasets/{Id}/match/{Date}/{Num:int}"
+@using System.Globalization
+@inject IHttpContextAccessor Http
+@inject NavigationManager Nav
+@inject PadelDbContext Db
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [Parameter] public string Date { get; set; } = string.Empty;
+    [Parameter] public int Num { get; set; }
+
+    private DatasetRecord? _dataset;
+    private string? _error;
+    private string _teamA = string.Empty;
+    private string _teamB = string.Empty;
+    private int _scoreA;
+    private int _scoreB;
+    private DateTime _matchDate;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = Http.HttpContext?.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(user))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _dataset = await Db.Datasets.FirstOrDefaultAsync(d => d.Id == Id && d.Owner == user);
+        if (_dataset is null)
+        {
+            _error = "Dataset introuvable.";
+            return;
+        }
+
+        if (!DateTime.TryParse(Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out _matchDate))
+        {
+            _error = "Match introuvable.";
+            return;
+        }
+
+        try
+        {
+            var data = System.Text.Json.JsonSerializer.Deserialize<PadelDataFile>(_dataset.Json) ?? new PadelDataFile();
+            var names = data.Players.ToDictionary(p => p.Id, p => p.Name);
+            var entry = data.ScoreEntries.FirstOrDefault(s => s.Date.Date == _matchDate.Date && s.MatchNumber == Num);
+            if (entry is null)
+            {
+                _error = "Match introuvable.";
+                return;
+            }
+
+            string Name(int pid) => names.TryGetValue(pid, out var n) ? n : "?";
+            _teamA = $"{Name(entry.TeamAPlayer1Id)} & {Name(entry.TeamAPlayer2Id)}";
+            _teamB = $"{Name(entry.TeamBPlayer1Id)} & {Name(entry.TeamBPlayer2Id)}";
+            _scoreA = entry.ScoreA;
+            _scoreB = entry.ScoreB;
+        }
+        catch
+        {
+            _error = "Les données de ce dataset sont illisibles.";
+        }
+    }
+}
+
+@if (_error is not null)
+{
+    <p class="error">@_error</p>
+}
+else if (_dataset is not null)
+{
+    <DatasetNav Id="@Id" Active="history" />
+    <h1>Modifier le match</h1>
+    <p class="muted">@_matchDate.ToString("dd/MM/yyyy") · match n°@Num</p>
+
+    <form method="post" action="@($"/datasets/{Id}/match/{Date}/{Num}/save")" class="card" style="max-width:420px;">
+        <label>@_teamA
+            <input name="scoreA" type="number" min="0" value="@_scoreA" required />
+        </label>
+        <label>@_teamB
+            <input name="scoreB" type="number" min="0" value="@_scoreB" required />
+        </label>
+        <button type="submit">Enregistrer</button>
+    </form>
+
+    <form method="post" action="@($"/datasets/{Id}/match/{Date}/{Num}/delete")" style="margin-top:12px;"
+          onsubmit="return confirm('Supprimer ce match ?');">
+        <button type="submit" style="background:#b91c1c;">Supprimer ce match</button>
+    </form>
+}

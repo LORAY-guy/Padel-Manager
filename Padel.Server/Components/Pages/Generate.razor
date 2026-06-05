@@ -1,0 +1,149 @@
+@page "/datasets/{Id}/generate"
+@inject IHttpContextAccessor Http
+@inject NavigationManager Nav
+@inject PadelDbContext Db
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [SupplyParameterFromQuery(Name = "p")] public int[]? P { get; set; }
+    [SupplyParameterFromQuery] public int Rounds { get; set; }
+    [SupplyParameterFromQuery] public int Seed { get; set; }
+
+    private DatasetRecord? _dataset;
+    private List<PlayerEntry> _players = new();
+    private string? _error;
+    private List<GeneratedMatch> _generated = new();
+    private Dictionary<int, string> _names = new();
+    private string Today => DateTime.Today.ToString("yyyy-MM-dd");
+
+    private bool HasSelection => P is { Length: >= 4 } && Rounds >= 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = Http.HttpContext?.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(user))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _dataset = await Db.Datasets.FirstOrDefaultAsync(d => d.Id == Id && d.Owner == user);
+        if (_dataset is null)
+        {
+            _error = "Dataset introuvable.";
+            return;
+        }
+
+        try
+        {
+            var data = System.Text.Json.JsonSerializer.Deserialize<PadelDataFile>(_dataset.Json) ?? new PadelDataFile();
+            _players = data.Players.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).ToList();
+            _names = data.Players.ToDictionary(p => p.Id, p => p.Name);
+
+            if (HasSelection)
+            {
+                var selected = _players.Where(p => P!.Contains(p.Id)).ToList();
+                var avg = MatchGenerator.AveragePointsById(data);
+                _generated = MatchGenerator.Generate(selected, avg, Rounds, new Random(Seed));
+            }
+        }
+        catch
+        {
+            _error = "Les données de ce dataset sont illisibles.";
+        }
+    }
+
+    private string Name(int id) => _names.TryGetValue(id, out var n) ? n : "?";
+
+    private string RegenerateUrl()
+    {
+        var ps = string.Join("&", (P ?? Array.Empty<int>()).Select(x => $"p={x}"));
+        return $"/datasets/{Id}/generate?{ps}&rounds={Rounds}&seed={Seed + 1}";
+    }
+}
+
+@if (_error is not null)
+{
+    <p class="error">@_error</p>
+}
+else if (_dataset is not null)
+{
+    <DatasetNav Id="@Id" Active="generate" />
+    <h1>@_dataset.Name — Générer des matchs</h1>
+
+    @if (_players.Count < 4)
+    {
+        <p class="muted">Il faut au moins quatre joueurs. <a href="@($"/datasets/{Id}/players")">Ajouter des joueurs</a>.</p>
+    }
+    else if (!HasSelection)
+    {
+        <form method="get" action="@($"/datasets/{Id}/generate")" class="card" style="max-width:480px;">
+            <strong>Joueurs présents</strong>
+            <div style="margin:8px 0; display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+                @foreach (var p in _players)
+                {
+                    <label style="display:flex; align-items:center; gap:6px; margin:0; font-size:14px;">
+                        <input type="checkbox" name="p" value="@p.Id" style="width:auto;" /> @p.Name
+                    </label>
+                }
+            </div>
+            <label>Nombre de rotations
+                <input name="rounds" type="number" min="1" max="20" value="3" />
+            </label>
+            <input type="hidden" name="seed" value="0" />
+            <button type="submit">Générer</button>
+        </form>
+        <p class="muted" style="margin-top:8px;">Sélectionnez au moins 4 joueurs (multiples de 4 pour remplir les terrains).</p>
+    }
+    else if (_generated.Count == 0)
+    {
+        <p class="muted">Aucun match généré. Sélectionnez au moins 4 joueurs.</p>
+        <p><a href="@($"/datasets/{Id}/generate")">← Recommencer</a></p>
+    }
+    else
+    {
+        <p>
+            <a href="@RegenerateUrl()">↻ Regénérer</a> ·
+            <a href="@($"/datasets/{Id}/generate")">Changer les joueurs</a>
+        </p>
+        <p class="muted">Saisissez les scores des matchs joués, puis enregistrez. Les matchs sans score sont ignorés.</p>
+
+        <form method="post" action="@($"/datasets/{Id}/generate/save")">
+            <label class="muted" style="display:block; margin-bottom:8px;">Date
+                <input name="date" type="date" value="@Today" style="margin-left:6px;" />
+            </label>
+
+            @{ var currentRound = 0; }
+            @foreach (var m in _generated)
+            {
+                @if (m.Round != currentRound)
+                {
+                    currentRound = m.Round;
+                    <h3 style="margin:14px 0 6px; font-size:15px;">Rotation @m.Round</h3>
+                }
+                <div class="card" style="max-width:520px; margin-bottom:8px; padding:10px;">
+                    <input type="hidden" name="a1" value="@m.A1" />
+                    <input type="hidden" name="a2" value="@m.A2" />
+                    <input type="hidden" name="b1" value="@m.B1" />
+                    <input type="hidden" name="b2" value="@m.B2" />
+                    <input type="hidden" name="round" value="@m.Round" />
+                    <input type="hidden" name="terrain" value="@m.Terrain" />
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span style="flex:1; min-width:120px;">@Name(m.A1) &amp; @Name(m.A2)</span>
+                        <input name="scoreA" type="number" min="0" placeholder="–" style="width:56px; padding:6px; border:1px solid var(--border); border-radius:5px;" />
+                        <span>vs</span>
+                        <input name="scoreB" type="number" min="0" placeholder="–" style="width:56px; padding:6px; border:1px solid var(--border); border-radius:5px;" />
+                        <span style="flex:1; min-width:120px; text-align:right;">@Name(m.B1) &amp; @Name(m.B2)</span>
+                    </div>
+                </div>
+            }
+
+            <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+                <button type="submit">Enregistrer les scores saisis</button>
+                <button type="submit" formaction="@($"/datasets/{Id}/generate/plan")" style="background:#475569;">
+                    Enregistrer comme planning (sans scores)
+                </button>
+            </div>
+        </form>
+    }
+}

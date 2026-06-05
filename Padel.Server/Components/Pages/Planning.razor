@@ -1,0 +1,93 @@
+@page "/datasets/{Id}/planning"
+@inject IHttpContextAccessor Http
+@inject NavigationManager Nav
+@inject PadelDbContext Db
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [SupplyParameterFromQuery] public string? Ok { get; set; }
+
+    private DatasetRecord? _dataset;
+    private string? _error;
+    private Dictionary<int, string> _names = new();
+    private List<IGrouping<DateTime, PlannedEntry>> _byDate = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = Http.HttpContext?.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(user))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _dataset = await Db.Datasets.FirstOrDefaultAsync(d => d.Id == Id && d.Owner == user);
+        if (_dataset is null)
+        {
+            _error = "Dataset introuvable.";
+            return;
+        }
+
+        try
+        {
+            var data = System.Text.Json.JsonSerializer.Deserialize<PadelDataFile>(_dataset.Json) ?? new PadelDataFile();
+            _names = data.Players.ToDictionary(p => p.Id, p => p.Name);
+            _byDate = data.PlannedEntries
+                .GroupBy(p => p.Date.Date)
+                .OrderByDescending(g => g.Key)
+                .ToList();
+        }
+        catch
+        {
+            _error = "Les données de ce dataset sont illisibles.";
+        }
+    }
+
+    private string Name(int id) => _names.TryGetValue(id, out var n) ? n : "?";
+}
+
+@if (_error is not null)
+{
+    <p class="error">@_error</p>
+}
+else if (_dataset is not null)
+{
+    <DatasetNav Id="@Id" Active="planning" />
+    <h1>@_dataset.Name — Planning</h1>
+
+    @if (Ok == "1")
+    {
+        <p style="color:#15803d; background:#dcfce7; padding:8px 10px; border-radius:6px;">Scores enregistrés — les matchs joués sont passés au classement.</p>
+    }
+
+    @if (_byDate.Count == 0)
+    {
+        <p class="muted">Aucun match en attente. Générez des matchs puis « Enregistrer comme planning » pour préparer une séance à l'avance.</p>
+        <p><a href="@($"/datasets/{Id}/generate")">→ Générer des matchs</a></p>
+    }
+    else
+    {
+        @foreach (var group in _byDate)
+        {
+            <h3 style="margin:16px 0 6px; font-size:15px;">Séance du @group.Key.ToString("dd/MM/yyyy")</h3>
+            <form method="post" action="@($"/manage/datasets/{Id}/planning/{group.Key:yyyy-MM-dd}/scores")">
+                @foreach (var m in group.OrderBy(p => p.RoundNumber).ThenBy(p => p.TerrainNumber))
+                {
+                    <div class="card" style="max-width:560px; margin-bottom:8px; padding:10px;">
+                        <input type="hidden" name="round" value="@m.RoundNumber" />
+                        <input type="hidden" name="terrain" value="@m.TerrainNumber" />
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            <span style="flex:1; min-width:120px;">@Name(m.TeamAPlayer1Id) &amp; @Name(m.TeamAPlayer2Id)</span>
+                            <input name="scoreA" type="number" min="0" placeholder="–" style="width:56px; padding:6px; border:1px solid var(--border); border-radius:5px;" />
+                            <span>vs</span>
+                            <input name="scoreB" type="number" min="0" placeholder="–" style="width:56px; padding:6px; border:1px solid var(--border); border-radius:5px;" />
+                            <span style="flex:1; min-width:120px; text-align:right;">@Name(m.TeamBPlayer1Id) &amp; @Name(m.TeamBPlayer2Id)</span>
+                        </div>
+                    </div>
+                }
+                <button type="submit" style="margin-bottom:6px;">Enregistrer les scores joués</button>
+            </form>
+        }
+        <p class="muted">Saisissez le score d'un match pour le valider : il rejoint le classement et quitte le planning. Les matchs sans score restent en attente.</p>
+    }
+}

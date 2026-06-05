@@ -1,0 +1,96 @@
+@page "/datasets/{Id}/tournaments"
+@inject IHttpContextAccessor Http
+@inject NavigationManager Nav
+@inject PadelDbContext Db
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [SupplyParameterFromQuery] public string? Error { get; set; }
+
+    private DatasetRecord? _dataset;
+    private List<PlayerEntry> _players = new();
+    private List<DateTime> _tournamentDates = new();
+    private string? _loadError;
+    private string Today => DateTime.Today.ToString("yyyy-MM-dd");
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = Http.HttpContext?.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(user))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _dataset = await Db.Datasets.FirstOrDefaultAsync(d => d.Id == Id && d.Owner == user);
+        if (_dataset is null)
+        {
+            _loadError = "Dataset introuvable.";
+            return;
+        }
+
+        try
+        {
+            var data = System.Text.Json.JsonSerializer.Deserialize<PadelDataFile>(_dataset.Json) ?? new PadelDataFile();
+            _players = data.Players.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).ToList();
+            _tournamentDates = data.TournamentEntries
+                .Select(t => t.TournamentDate.Date)
+                .Distinct()
+                .OrderByDescending(d => d)
+                .ToList();
+        }
+        catch
+        {
+            _loadError = "Les données de ce dataset sont illisibles.";
+        }
+    }
+}
+
+@if (_loadError is not null)
+{
+    <p class="error">@_loadError</p>
+}
+else if (_dataset is not null)
+{
+    <DatasetNav Id="@Id" Active="tournaments" />
+    <h1>@_dataset.Name — Tournois</h1>
+
+    @if (Error == "1")
+    {
+        <p class="error">Sélectionnez un multiple de 4 joueurs (4, 8, 12…).</p>
+    }
+
+    @if (_tournamentDates.Count > 0)
+    {
+        <ul class="list">
+            @foreach (var d in _tournamentDates)
+            {
+                <li><a href="@($"/datasets/{Id}/tournament/{d:yyyy-MM-dd}")">Tournoi du @d.ToString("dd/MM/yyyy")</a></li>
+            }
+        </ul>
+    }
+
+    @if (_players.Count < 4)
+    {
+        <p class="muted">Il faut au moins quatre joueurs. <a href="@($"/datasets/{Id}/players")">Ajouter des joueurs</a>.</p>
+    }
+    else
+    {
+        <form method="post" action="@($"/manage/datasets/{Id}/tournament/create")" class="card" style="max-width:480px; margin-top:12px;">
+            <strong>Nouveau tournoi</strong>
+            <label>Date
+                <input name="date" type="date" value="@Today" />
+            </label>
+            <div style="margin:8px 0; display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+                @foreach (var p in _players)
+                {
+                    <label style="display:flex; align-items:center; gap:6px; margin:0; font-size:14px;">
+                        <input type="checkbox" name="p" value="@p.Id" style="width:auto;" /> @p.Name
+                    </label>
+                }
+            </div>
+            <button type="submit">Générer le bracket</button>
+            <p class="muted" style="margin:8px 0 0;">Nombre de joueurs multiple de 4. Les équipes du 1er tour sont équilibrées automatiquement.</p>
+        </form>
+    }
+}

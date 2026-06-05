@@ -1,0 +1,92 @@
+@page "/datasets/{Id}/history"
+@inject IHttpContextAccessor Http
+@inject NavigationManager Nav
+@inject PadelDbContext Db
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [SupplyParameterFromQuery] public string? Ok { get; set; }
+    [SupplyParameterFromQuery] public string? Error { get; set; }
+
+    private DatasetRecord? _dataset;
+    private IReadOnlyList<MatchRow> _rows = Array.Empty<MatchRow>();
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = Http.HttpContext?.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(user))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _dataset = await Db.Datasets.FirstOrDefaultAsync(d => d.Id == Id && d.Owner == user);
+        if (_dataset is null)
+        {
+            _error = "Dataset introuvable.";
+            return;
+        }
+
+        try
+        {
+            var data = System.Text.Json.JsonSerializer.Deserialize<PadelDataFile>(_dataset.Json) ?? new PadelDataFile();
+            _rows = PadelStats.History(data);
+        }
+        catch
+        {
+            _error = "Les données de ce dataset sont illisibles.";
+        }
+    }
+}
+
+@if (_error is not null)
+{
+    <p><a class="home-link" href="/">‹ Mes datasets</a></p>
+    <p class="error">@_error</p>
+}
+else if (_dataset is not null)
+{
+    <DatasetNav Id="@Id" Active="history" />
+    <h1>@_dataset.Name — Historique</h1>
+
+    @if (Ok == "1")
+    {
+        <p class="banner-ok">Modification enregistrée.</p>
+    }
+    @if (Error == "1")
+    {
+        <p class="error">Modification impossible.</p>
+    }
+
+    @if (_rows.Count == 0)
+    {
+        <p class="muted">Aucun match enregistré pour l'instant.</p>
+    }
+    else
+    {
+        <table class="lb">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Équipe A</th>
+                    <th class="num">Score</th>
+                    <th>Équipe B</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in _rows)
+                {
+                    <tr>
+                        <td>@m.Date.ToString("dd/MM/yy")</td>
+                        <td style="@(m.ScoreA > m.ScoreB ? "font-weight:600" : "")">@m.TeamAPlayer1 &amp; @m.TeamAPlayer2</td>
+                        <td class="num">@m.ScoreA – @m.ScoreB</td>
+                        <td style="@(m.ScoreB > m.ScoreA ? "font-weight:600" : "")">@m.TeamBPlayer1 &amp; @m.TeamBPlayer2</td>
+                        <td><a href="@($"/datasets/{Id}/match/{m.Date:yyyy-MM-dd}/{m.MatchNumber}")">Modifier</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

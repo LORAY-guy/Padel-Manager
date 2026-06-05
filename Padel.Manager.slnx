@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="Padel.Core/Padel.Core.csproj" />
+  <Project Path="Padel.Server/Padel.Server.csproj" />
   <Project Path="Padel.Manager.csproj" />
 </Solution>

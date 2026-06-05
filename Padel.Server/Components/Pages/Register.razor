@@ -1,0 +1,61 @@
+@page "/register"
+@inject IHttpContextAccessor Http
+@inject NavigationManager Nav
+@inject IOptions<RegistrationOptions> RegOptions
+
+@code {
+    [SupplyParameterFromQuery] public string? Error { get; set; }
+
+    private RegistrationOptions Reg => RegOptions.Value;
+
+    protected override void OnInitialized()
+    {
+        if (Http.HttpContext?.User?.Identity?.IsAuthenticated == true)
+        {
+            Nav.NavigateTo("/");
+        }
+    }
+
+    private string? ErrorText => Error switch
+    {
+        "taken" => "Ce nom d'utilisateur est déjà pris.",
+        "invalid" => "Identifiant (3 caractères min.) ou mot de passe (4 caractères min.) trop court.",
+        "invite" => "Code d'invitation invalide.",
+        "closed" => "Les inscriptions sont fermées.",
+        null or "" => null,
+        _ => "Création du compte impossible."
+    };
+}
+
+<h1>Créer un compte</h1>
+
+@if (Reg.IsClosed)
+{
+    <p class="muted">Les inscriptions sont actuellement fermées. Demandez à l'administrateur de créer votre compte.</p>
+    <p class="muted" style="margin-top:14px;">Déjà un compte ? <a href="/login">Se connecter</a></p>
+}
+else
+{
+    @if (ErrorText is not null)
+    {
+        <p class="error">@ErrorText</p>
+    }
+
+    <form method="post" action="/account/register" class="card">
+        <label>Identifiant
+            <input name="username" autocomplete="username" required minlength="3" />
+        </label>
+        <label>Mot de passe
+            <input name="password" type="password" autocomplete="new-password" required minlength="4" />
+        </label>
+        @if (Reg.IsInvite)
+        {
+            <label>Code d'invitation
+                <input name="invite" required />
+            </label>
+        }
+        <button type="submit">Créer mon compte</button>
+    </form>
+
+    <p class="muted" style="margin-top:14px;">Déjà un compte ? <a href="/login">Se connecter</a></p>
+}

@@ -1,0 +1,19 @@
+@* Tabbed navigation for a dataset, mirroring the desktop app's tab strip. *@
+<div class="subnav">
+    <a class="home-link" href="/">‹ Mes datasets</a>
+    <nav class="tabs">
+        <a class="tab @(Active == "leaderboard" ? "active" : "")" href="@($"/datasets/{Id}")">Classement</a>
+        <a class="tab @(Active == "history" ? "active" : "")" href="@($"/datasets/{Id}/history")">Historique</a>
+        <a class="tab @(Active == "players" ? "active" : "")" href="@($"/datasets/{Id}/players")">Joueurs</a>
+        <a class="tab @(Active == "generate" ? "active" : "")" href="@($"/datasets/{Id}/generate")">Générer</a>
+        <a class="tab @(Active == "planning" ? "active" : "")" href="@($"/datasets/{Id}/planning")">Planning</a>
+        <a class="tab @(Active == "tournaments" ? "active" : "")" href="@($"/datasets/{Id}/tournaments")">Tournois</a>
+        <a class="tab @(Active == "settings" ? "active" : "")" href="@($"/datasets/{Id}/settings")">Paramètres</a>
+        <a class="tab cta @(Active == "add" ? "active" : "")" href="@($"/datasets/{Id}/add")">+ Score</a>
+    </nav>
+</div>
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [Parameter] public string Active { get; set; } = string.Empty;
+}

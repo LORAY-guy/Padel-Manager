@@ -62,3 +62,17 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+.claude
+docs
+
+# Server SQLite database (data lives here — back it up, don't commit it)
+*.db
+*.db-shm
+*.db-wal
+
+# Server-generated JWT signing key
+jwt-signing-key.txt
+
+server-out
+deploy

@@ -30,7 +30,9 @@ public partial class App : Application
             if (registry.DarkMode)
                 RequestedThemeVariant = ThemeVariant.Dark;
 
-            var startup = new StartupDialog(registry);
+            var serverSession = new ServerSession(registry);
+
+            var startup = new StartupDialog(registry, serverSession);
             desktop.MainWindow = startup;
 
             startup.Closed += (_, _) =>
@@ -44,7 +46,7 @@ public partial class App : Application
                 registry.SetLastOpened(startup.ChosenEntry.Id);
                 registry.Save();
 
-                var mainWindow = new MainWindow(registry, startup.ChosenEntry);
+                var mainWindow = new MainWindow(registry, serverSession, startup.ChosenEntry);
                 mainWindow.Closed += (_, _) => desktop.Shutdown(0);
                 desktop.MainWindow = mainWindow;
                 mainWindow.Show();

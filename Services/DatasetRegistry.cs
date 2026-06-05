@@ -4,6 +4,12 @@ using System.Text.Json.Serialization;
 
 namespace Padel.Manager.Services;
 
+public enum DatasetSource
+{
+    Local = 0,
+    Server = 1
+}
+
 public sealed class DatasetEntry
 {
     [JsonPropertyName("id")]
@@ -12,11 +18,26 @@ public sealed class DatasetEntry
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
+    /// <summary>For local datasets, the .padel file. For server datasets, the local cache file.</summary>
     [JsonPropertyName("path")]
     public string Path { get; set; } = string.Empty;
 
     [JsonPropertyName("lastOpenedUtc")]
     public DateTime LastOpenedUtc { get; set; }
+
+    [JsonPropertyName("source")]
+    public DatasetSource Source { get; set; } = DatasetSource.Local;
+
+    /// <summary>Server-side dataset id (server datasets only).</summary>
+    [JsonPropertyName("serverId")]
+    public string? ServerId { get; set; }
+
+    /// <summary>Last version synced from/to the server (server datasets only).</summary>
+    [JsonPropertyName("serverVersion")]
+    public int ServerVersion { get; set; }
+
+    [JsonIgnore]
+    public bool IsServer => Source == DatasetSource.Server;
 }
 
 public sealed class DatasetRegistry
@@ -29,20 +50,40 @@ public sealed class DatasetRegistry
 
     private readonly List<DatasetEntry> _datasets;
 
-    private DatasetRegistry(string registryPath, string defaultDatasetFolder, List<DatasetEntry> datasets, string? lastOpenedId, bool darkMode)
+    private DatasetRegistry(string registryPath, string defaultDatasetFolder, List<DatasetEntry> datasets, string? lastOpenedId, bool darkMode, string? serverUrl, string? serverToken)
     {
         RegistryPath = registryPath;
         DefaultDatasetFolder = defaultDatasetFolder;
         _datasets = datasets;
         LastOpenedId = lastOpenedId;
         DarkMode = darkMode;
+        ServerUrl = serverUrl;
+        ServerToken = serverToken;
     }
 
     public string RegistryPath { get; }
     public string DefaultDatasetFolder { get; }
     public string? LastOpenedId { get; private set; }
     public bool DarkMode { get; private set; }
+    public string? ServerUrl { get; private set; }
+    public string? ServerToken { get; private set; }
     public IReadOnlyList<DatasetEntry> Datasets => _datasets;
+
+    /// <summary>Folder holding local cache copies of server datasets.</summary>
+    public string ServerCacheFolder => System.IO.Path.Combine(System.IO.Path.GetDirectoryName(RegistryPath)!, "ServerCache");
+
+    public string BuildServerCachePath(string serverId)
+    {
+        var folder = ServerCacheFolder;
+        Directory.CreateDirectory(folder);
+        return System.IO.Path.Combine(folder, $"{serverId}.padel");
+    }
+
+    public void SetServerConnection(string? url, string? token)
+    {
+        ServerUrl = string.IsNullOrWhiteSpace(url) ? null : url.Trim().TrimEnd('/');
+        ServerToken = string.IsNullOrWhiteSpace(token) ? null : token;
+    }
 
     public static DatasetRegistry Load()
     {
@@ -56,6 +97,8 @@ public sealed class DatasetRegistry
         List<DatasetEntry> datasets;
         string? lastOpenedId = null;
         bool darkMode = false;
+        string? serverUrl = null;
+        string? serverToken = null;
 
         if (File.Exists(registryPath))
         {
@@ -66,6 +109,8 @@ public sealed class DatasetRegistry
                 datasets = stored?.Datasets ?? new List<DatasetEntry>();
                 lastOpenedId = stored?.LastOpenedId;
                 darkMode = stored?.DarkMode ?? false;
+                serverUrl = stored?.ServerUrl;
+                serverToken = stored?.ServerToken;
             }
             catch
             {
@@ -95,7 +140,7 @@ public sealed class DatasetRegistry
             }
         }
 
-        var registry = new DatasetRegistry(registryPath, defaultDatasetFolder, datasets, lastOpenedId, darkMode);
+        var registry = new DatasetRegistry(registryPath, defaultDatasetFolder, datasets, lastOpenedId, darkMode, serverUrl, serverToken);
         if (datasets.Count > 0)
         {
             registry.Save();
@@ -185,7 +230,14 @@ public sealed class DatasetRegistry
 
     public void Save()
     {
-        var stored = new StoredRegistry { Datasets = _datasets, LastOpenedId = LastOpenedId, DarkMode = DarkMode };
+        var stored = new StoredRegistry
+        {
+            Datasets = _datasets,
+            LastOpenedId = LastOpenedId,
+            DarkMode = DarkMode,
+            ServerUrl = ServerUrl,
+            ServerToken = ServerToken
+        };
         var json = JsonSerializer.Serialize(stored, JsonOptions);
         File.WriteAllText(RegistryPath, json);
     }
@@ -233,5 +285,11 @@ public sealed class DatasetRegistry
 
         [JsonPropertyName("darkMode")]
         public bool DarkMode { get; set; }
+
+        [JsonPropertyName("serverUrl")]
+        public string? ServerUrl { get; set; }
+
+        [JsonPropertyName("serverToken")]
+        public string? ServerToken { get; set; }
     }
 }

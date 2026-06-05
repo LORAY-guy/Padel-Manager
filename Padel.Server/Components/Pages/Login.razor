@@ -1,0 +1,34 @@
+@page "/login"
+@inject IHttpContextAccessor Http
+@inject NavigationManager Nav
+
+@code {
+    [SupplyParameterFromQuery] public string? Error { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Http.HttpContext?.User?.Identity?.IsAuthenticated == true)
+        {
+            Nav.NavigateTo("/");
+        }
+    }
+}
+
+<h1>Connexion</h1>
+
+@if (!string.IsNullOrEmpty(Error))
+{
+    <p class="error">Identifiant ou mot de passe incorrect.</p>
+}
+
+<form method="post" action="/account/login" class="card">
+    <label>Identifiant
+        <input name="username" autocomplete="username" required />
+    </label>
+    <label>Mot de passe
+        <input name="password" type="password" autocomplete="current-password" required />
+    </label>
+    <button type="submit">Se connecter</button>
+</form>
+
+<p class="muted" style="margin-top:14px;">Pas encore de compte ? <a href="/register">Créer un compte</a></p>

@@ -1,0 +1,111 @@
+@page "/datasets/{Id}/players"
+@inject IHttpContextAccessor Http
+@inject NavigationManager Nav
+@inject PadelDbContext Db
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [SupplyParameterFromQuery] public string? Q { get; set; }
+    [SupplyParameterFromQuery] public string? Error { get; set; }
+    [SupplyParameterFromQuery] public string? Ok { get; set; }
+
+    private DatasetRecord? _dataset;
+    private List<PlayerEntry> _players = new();
+    private string? _loadError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = Http.HttpContext?.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(user))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _dataset = await Db.Datasets.FirstOrDefaultAsync(d => d.Id == Id && d.Owner == user);
+        if (_dataset is null)
+        {
+            _loadError = "Dataset introuvable.";
+            return;
+        }
+
+        try
+        {
+            var data = System.Text.Json.JsonSerializer.Deserialize<PadelDataFile>(_dataset.Json) ?? new PadelDataFile();
+            _players = data.Players.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).ToList();
+        }
+        catch
+        {
+            _loadError = "Les données de ce dataset sont illisibles.";
+        }
+    }
+
+    private IEnumerable<PlayerEntry> Filtered =>
+        string.IsNullOrWhiteSpace(Q)
+            ? _players
+            : _players.Where(p => p.Name.Contains(Q!, StringComparison.OrdinalIgnoreCase));
+}
+
+@if (_loadError is not null)
+{
+    <p class="error">@_loadError</p>
+}
+else if (_dataset is not null)
+{
+    <DatasetNav Id="@Id" Active="players" />
+    <h1>@_dataset.Name — Joueurs</h1>
+
+    @if (Error == "1")
+    {
+        <p class="error">Ce joueur existe déjà ou le nom est vide.</p>
+    }
+    @if (Ok == "1")
+    {
+        <p style="color:#15803d; background:#dcfce7; padding:8px 10px; border-radius:6px;">Enregistré.</p>
+    }
+
+    <form method="post" action="@($"/datasets/{Id}/players/add")" class="card" style="max-width:420px;">
+        <strong>Ajouter un joueur</strong>
+        <label>Nom
+            <input name="name" required />
+        </label>
+        <label>Niveau
+            <input name="level" type="number" min="1" max="10" value="3" required />
+        </label>
+        <button type="submit">Ajouter</button>
+    </form>
+
+    <form method="get" action="@($"/datasets/{Id}/players")" style="margin:16px 0 8px;">
+        <input name="q" value="@Q" placeholder="Rechercher un joueur…"
+               style="padding:8px 10px; border:1px solid var(--border); border-radius:6px; width:60%; max-width:320px;" />
+        <button type="submit">Rechercher</button>
+    </form>
+
+    @if (!Filtered.Any())
+    {
+        <p class="muted">Aucun joueur@(string.IsNullOrWhiteSpace(Q) ? "." : $" pour « {Q} ».")</p>
+    }
+    else
+    {
+        <table class="lb">
+            <thead><tr><th>Joueur</th><th class="num">Niveau</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var p in Filtered)
+                {
+                    <tr>
+                        <td>@p.Name</td>
+                        <td class="num">@p.Level</td>
+                        <td>
+                            <form method="post" action="@($"/datasets/{Id}/players/level")" style="display:flex; gap:6px; margin:0; justify-content:flex-end;">
+                                <input type="hidden" name="playerId" value="@p.Id" />
+                                <input name="level" type="number" min="1" max="10" value="@p.Level"
+                                       style="width:64px; padding:5px; border:1px solid var(--border); border-radius:5px;" />
+                                <button type="submit" style="padding:5px 10px; font-size:13px;">OK</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

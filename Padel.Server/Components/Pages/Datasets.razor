@@ -1,0 +1,62 @@
+@page "/"
+@inject IHttpContextAccessor Http
+@inject NavigationManager Nav
+@inject PadelDbContext Db
+
+@code {
+    [SupplyParameterFromQuery] public string? Error { get; set; }
+
+    private List<DatasetRecord> _items = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = Http.HttpContext?.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(user))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _items = await Db.Datasets
+            .Where(d => d.Owner == user)
+            .OrderByDescending(d => d.UpdatedUtc)
+            .ToListAsync();
+    }
+}
+
+<h1>Mes datasets</h1>
+
+@if (Error == "name")
+{
+    <p class="error">Donnez un nom au dataset.</p>
+}
+
+<form method="post" action="/manage/datasets/create" class="card" style="max-width:480px; margin-bottom:16px;">
+    <strong>Nouveau dataset</strong>
+    <div style="display:flex; gap:8px; margin-top:8px;">
+        <input name="name" placeholder="Nom (ex : Club du mardi)" required style="flex:1; padding:9px 10px; border:1px solid var(--border); border-radius:6px;" />
+        <button type="submit">Créer</button>
+    </div>
+</form>
+
+@if (_items.Count == 0)
+{
+    <p class="muted">Aucun dataset pour le moment. Créez-en un ci-dessus, ou téléversez-en un depuis l'application de bureau.</p>
+}
+else
+{
+    <ul class="list">
+        @foreach (var d in _items)
+        {
+            <li>
+                <a href="@($"/datasets/{d.Id}")">@d.Name</a>
+                <span class="spacer" style="flex:1"></span>
+                <span class="muted">v@(d.Version) · @d.UpdatedUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+                <form method="post" action="@($"/manage/datasets/{d.Id}/delete")" style="margin:0;"
+                      onsubmit="return confirm('Supprimer « @d.Name » ? Cette action est définitive.');">
+                    <button type="submit" class="link" style="color:#b91c1c;">Supprimer</button>
+                </form>
+            </li>
+        }
+    </ul>
+}

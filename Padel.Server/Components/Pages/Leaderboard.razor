@@ -1,0 +1,110 @@
+@page "/datasets/{Id}"
+@inject IHttpContextAccessor Http
+@inject NavigationManager Nav
+@inject PadelDbContext Db
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [SupplyParameterFromQuery] public string? Added { get; set; }
+
+    private DatasetRecord? _dataset;
+    private IReadOnlyList<LeaderboardRow> _rows = Array.Empty<LeaderboardRow>();
+    private string? _error;
+    private bool _americano;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = Http.HttpContext?.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(user))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _dataset = await Db.Datasets.FirstOrDefaultAsync(d => d.Id == Id && d.Owner == user);
+        if (_dataset is null)
+        {
+            _error = "Dataset introuvable.";
+            return;
+        }
+
+        try
+        {
+            var data = System.Text.Json.JsonSerializer.Deserialize<PadelDataFile>(_dataset.Json) ?? new PadelDataFile();
+            _americano = data.AmericanoMode;
+            var rows = PadelStats.Leaderboard(data);
+            // Americano ranks by total games won rather than match points.
+            _rows = _americano
+                ? rows.OrderByDescending(r => r.TotalScoredGames)
+                      .ThenByDescending(r => r.MatchesWon)
+                      .ThenBy(r => r.Name, StringComparer.OrdinalIgnoreCase)
+                      .ToList()
+                : rows;
+        }
+        catch
+        {
+            _error = "Les données de ce dataset sont illisibles.";
+        }
+    }
+}
+
+@if (_error is not null)
+{
+    <p><a class="home-link" href="/">‹ Mes datasets</a></p>
+    <p class="error">@_error</p>
+}
+else if (_dataset is not null)
+{
+    <DatasetNav Id="@Id" Active="leaderboard" />
+    <h1>@_dataset.Name — Classement</h1>
+    @if (_americano)
+    {
+        <p class="muted" style="margin-top:-8px;">Mode Americano — classement par jeux gagnés.</p>
+    }
+    <details style="margin-bottom:10px;">
+        <summary class="muted" style="cursor:pointer;">Renommer ce dataset</summary>
+        <form method="post" action="@($"/manage/datasets/{Id}/rename")" style="display:flex; gap:8px; margin-top:8px; max-width:420px;">
+            <input name="name" value="@_dataset.Name" required style="flex:1;" />
+            <button type="submit">Renommer</button>
+        </form>
+    </details>
+
+    @if (!string.IsNullOrEmpty(Added))
+    {
+        <p style="color:#15803d; background:#dcfce7; padding:8px 10px; border-radius:6px;">Match enregistré.</p>
+    }
+
+    @if (_rows.Count == 0)
+    {
+        <p class="muted">Aucun match enregistré pour l'instant.</p>
+    }
+    else
+    {
+        <table class="lb">
+            <thead>
+                <tr>
+                    <th class="num">#</th>
+                    <th>Joueur</th>
+                    <th class="num">@(_americano ? "Jeux" : "Pts")</th>
+                    <th class="num">J</th>
+                    <th class="num">V</th>
+                    <th class="num">Moy.</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ var rank = 1; }
+                @foreach (var r in _rows)
+                {
+                    <tr class="@(rank <= 3 ? $"p{rank}" : "")">
+                        <td class="num">@(rank++)</td>
+                        <td>@r.Name</td>
+                        <td class="num">@(_americano ? r.TotalScoredGames : r.TotalPoints)</td>
+                        <td class="num">@r.MatchesPlayed</td>
+                        <td class="num">@r.MatchesWon</td>
+                        <td class="num">@r.AveragePoints.ToString("0.0")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

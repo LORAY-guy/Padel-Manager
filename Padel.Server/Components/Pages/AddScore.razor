@@ -1,0 +1,114 @@
+@page "/datasets/{Id}/add"
+@inject IHttpContextAccessor Http
+@inject NavigationManager Nav
+@inject PadelDbContext Db
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [SupplyParameterFromQuery] public string? Error { get; set; }
+
+    private DatasetRecord? _dataset;
+    private List<PlayerEntry> _players = new();
+    private string? _loadError;
+
+    private string Today => DateTime.Today.ToString("yyyy-MM-dd");
+
+    private string? ErrorText => Error switch
+    {
+        "players" => "Sélectionnez quatre joueurs différents.",
+        "score" => "Les scores doivent être positifs.",
+        "data" => "Les données de ce dataset sont illisibles.",
+        null or "" => null,
+        _ => "Enregistrement impossible."
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = Http.HttpContext?.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(user))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _dataset = await Db.Datasets.FirstOrDefaultAsync(d => d.Id == Id && d.Owner == user);
+        if (_dataset is null)
+        {
+            _loadError = "Dataset introuvable.";
+            return;
+        }
+
+        try
+        {
+            var data = System.Text.Json.JsonSerializer.Deserialize<PadelDataFile>(_dataset.Json) ?? new PadelDataFile();
+            _players = data.Players.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase).ToList();
+        }
+        catch
+        {
+            _loadError = "Les données de ce dataset sont illisibles.";
+        }
+    }
+}
+
+@if (_loadError is not null)
+{
+    <p class="error">@_loadError</p>
+}
+else if (_dataset is not null)
+{
+    <DatasetNav Id="@Id" Active="add" />
+    <h1>@_dataset.Name — Ajouter un score</h1>
+
+    @if (_players.Count < 4)
+    {
+        <p class="muted">Il faut au moins quatre joueurs dans ce dataset. Ajoutez des joueurs depuis l'application de bureau, puis revenez ici.</p>
+    }
+    else
+    {
+        @if (ErrorText is not null)
+        {
+            <p class="error">@ErrorText</p>
+        }
+
+        <form method="post" action="@($"/datasets/{Id}/scores")" class="card" style="max-width:420px;">
+            <label>Date
+                <input name="date" type="date" value="@Today" required />
+            </label>
+
+            <fieldset style="border:1px solid var(--border); border-radius:6px; padding:10px; margin:0 0 12px;">
+                <legend style="font-size:12px; color:var(--muted);">Équipe A</legend>
+                @PlayerSelect("a1")
+                @PlayerSelect("a2")
+                <label>Score équipe A
+                    <input name="scoreA" type="number" min="0" value="0" required />
+                </label>
+            </fieldset>
+
+            <fieldset style="border:1px solid var(--border); border-radius:6px; padding:10px; margin:0 0 12px;">
+                <legend style="font-size:12px; color:var(--muted);">Équipe B</legend>
+                @PlayerSelect("b1")
+                @PlayerSelect("b2")
+                <label>Score équipe B
+                    <input name="scoreB" type="number" min="0" value="0" required />
+                </label>
+            </fieldset>
+
+            <button type="submit">Enregistrer le match</button>
+        </form>
+    }
+}
+
+@{
+    RenderFragment PlayerSelect(string name) => __builder =>
+    {
+        <label>Joueur
+            <select name="@name" required>
+                <option value="" selected disabled>— choisir —</option>
+                @foreach (var p in _players)
+                {
+                    <option value="@p.Id">@p.Name</option>
+                }
+            </select>
+        </label>
+    };
+}

@@ -1,0 +1,21 @@
+@inherits LayoutComponentBase
+@inject IHttpContextAccessor Http
+
+<header class="app-header">
+    <a href="/" class="brand">🎾 Padel Manager</a>
+    <span class="spacer"></span>
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
+        <span class="user">@User.Identity!.Name</span>
+        <form method="post" action="/account/logout">
+            <button type="submit" class="link" style="color:var(--navy-sub);">Déconnexion</button>
+        </form>
+    }
+</header>
+<main>
+    @Body
+</main>
+
+@code {
+    private System.Security.Claims.ClaimsPrincipal? User => Http.HttpContext?.User;
+}

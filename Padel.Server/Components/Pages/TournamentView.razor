@@ -1,0 +1,123 @@
+@page "/datasets/{Id}/tournament/{Date}"
+@inject IHttpContextAccessor Http
+@inject NavigationManager Nav
+@inject PadelDbContext Db
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [Parameter] public string Date { get; set; } = string.Empty;
+    [SupplyParameterFromQuery] public string? Ok { get; set; }
+
+    private DatasetRecord? _dataset;
+    private string? _error;
+    private DateTime _date;
+    private List<TournamentEntry> _entries = new();
+    private string? _champion;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = Http.HttpContext?.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(user))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _dataset = await Db.Datasets.FirstOrDefaultAsync(d => d.Id == Id && d.Owner == user);
+        if (_dataset is null)
+        {
+            _error = "Dataset introuvable.";
+            return;
+        }
+
+        if (!DateTime.TryParse(Date, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out _date))
+        {
+            _error = "Tournoi introuvable.";
+            return;
+        }
+
+        try
+        {
+            var data = System.Text.Json.JsonSerializer.Deserialize<PadelDataFile>(_dataset.Json) ?? new PadelDataFile();
+            _entries = data.TournamentEntries
+                .Where(t => t.TournamentDate.Date == _date.Date)
+                .OrderBy(t => t.RoundNumber).ThenBy(t => t.MatchNumber)
+                .ToList();
+            if (_entries.Count == 0)
+            {
+                _error = "Tournoi introuvable.";
+                return;
+            }
+
+            TournamentBuilder.Propagate(_entries);
+            _champion = TournamentBuilder.Champion(_entries);
+        }
+        catch
+        {
+            _error = "Les données de ce dataset sont illisibles.";
+        }
+    }
+
+    private static string Label(string team, string? source)
+        => !string.IsNullOrWhiteSpace(team) ? team : (string.IsNullOrWhiteSpace(source) ? "À déterminer" : source!);
+}
+
+@if (_error is not null)
+{
+    <p class="error">@_error</p>
+}
+else if (_dataset is not null)
+{
+    <DatasetNav Id="@Id" Active="tournaments" />
+    <h1>Tournoi du @_date.ToString("dd/MM/yyyy")</h1>
+
+    @if (Ok == "1")
+    {
+        <p style="color:#15803d; background:#dcfce7; padding:8px 10px; border-radius:6px;">Scores enregistrés.</p>
+    }
+
+    @if (_champion is not null)
+    {
+        <p style="font-size:16px; background:#fef9c3; padding:10px 12px; border-radius:8px;">🏆 Vainqueur : <strong>@_champion</strong></p>
+    }
+
+    <form method="post" action="@($"/manage/datasets/{Id}/tournament/{Date}/scores")">
+        @{ var currentRound = 0; }
+        @foreach (var m in _entries)
+        {
+            @if (m.RoundNumber != currentRound)
+            {
+                currentRound = m.RoundNumber;
+                <h3 style="margin:16px 0 6px; font-size:15px;">@(currentRound == 1 ? "1er tour" : $"Tour {currentRound}")</h3>
+            }
+
+            var ready = !string.IsNullOrWhiteSpace(m.TeamA) && !string.IsNullOrWhiteSpace(m.TeamB);
+            <div class="card" style="max-width:560px; margin-bottom:8px; padding:10px;">
+                @if (ready)
+                {
+                    <input type="hidden" name="round" value="@m.RoundNumber" />
+                    <input type="hidden" name="match" value="@m.MatchNumber" />
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span style="flex:1; min-width:120px;">@m.TeamA</span>
+                        <input name="scoreA" type="number" min="0" value="@(m.ScoreA?.ToString() ?? "")" placeholder="–"
+                               style="width:56px; padding:6px; border:1px solid var(--border); border-radius:5px;" />
+                        <span>vs</span>
+                        <input name="scoreB" type="number" min="0" value="@(m.ScoreB?.ToString() ?? "")" placeholder="–"
+                               style="width:56px; padding:6px; border:1px solid var(--border); border-radius:5px;" />
+                        <span style="flex:1; min-width:120px; text-align:right;">@m.TeamB</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="muted" style="display:flex; gap:8px; justify-content:space-between;">
+                        <span>@Label(m.TeamA, m.SourceTeamA)</span>
+                        <span>vs</span>
+                        <span>@Label(m.TeamB, m.SourceTeamB)</span>
+                    </div>
+                }
+            </div>
+        }
+
+        <button type="submit" style="margin-top:10px;">Enregistrer les scores</button>
+    </form>
+}

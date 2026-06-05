@@ -1,0 +1,70 @@
+@page "/datasets/{Id}/settings"
+@inject IHttpContextAccessor Http
+@inject NavigationManager Nav
+@inject PadelDbContext Db
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [SupplyParameterFromQuery] public string? Ok { get; set; }
+
+    private DatasetRecord? _dataset;
+    private string? _error;
+    private bool _americano;
+    private int _perSheet = 20;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = Http.HttpContext?.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(user))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _dataset = await Db.Datasets.FirstOrDefaultAsync(d => d.Id == Id && d.Owner == user);
+        if (_dataset is null)
+        {
+            _error = "Dataset introuvable.";
+            return;
+        }
+
+        try
+        {
+            var data = System.Text.Json.JsonSerializer.Deserialize<PadelDataFile>(_dataset.Json) ?? new PadelDataFile();
+            _americano = data.AmericanoMode;
+            _perSheet = data.LeaderboardPlayersPerSheet;
+        }
+        catch
+        {
+            _error = "Les données de ce dataset sont illisibles.";
+        }
+    }
+}
+
+@if (_error is not null)
+{
+    <p class="error">@_error</p>
+}
+else if (_dataset is not null)
+{
+    <DatasetNav Id="@Id" Active="settings" />
+    <h1>@_dataset.Name — Paramètres</h1>
+
+    @if (Ok == "1")
+    {
+        <p style="color:#15803d; background:#dcfce7; padding:8px 10px; border-radius:6px;">Paramètres enregistrés.</p>
+    }
+
+    <form method="post" action="@($"/manage/datasets/{Id}/settings")" class="card" style="max-width:460px;">
+        <label style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" name="americano" value="on" checked="@_americano" style="width:auto;" />
+            Mode Americano (classement par jeux gagnés au lieu des points)
+        </label>
+        <label style="margin-top:12px;">Joueurs par feuille (impression bureau)
+            <input name="perSheet" type="number" min="5" max="200" value="@_perSheet" />
+        </label>
+        <button type="submit" style="margin-top:12px;">Enregistrer</button>
+    </form>
+
+    <p style="margin-top:16px;"><a href="@($"/datasets/{Id}/export")">⤓ Exporter en Excel (.xlsx)</a></p>
+}
